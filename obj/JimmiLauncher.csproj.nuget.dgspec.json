@@ -1,26 +1,23 @@
 {
   "format": 1,
   "restore": {
-    "E:\\Jimmi\\JimmiLauncher\\JimmiLauncher.csproj": {}
+    "C:\\Users\\swill\\Documents\\code\\jimmi-launcher\\JimmiLauncher.csproj": {}
   },
   "projects": {
-    "E:\\Jimmi\\JimmiLauncher\\JimmiLauncher.csproj": {
+    "C:\\Users\\swill\\Documents\\code\\jimmi-launcher\\JimmiLauncher.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "E:\\Jimmi\\JimmiLauncher\\JimmiLauncher.csproj",
+        "projectUniqueName": "C:\\Users\\swill\\Documents\\code\\jimmi-launcher\\JimmiLauncher.csproj",
         "projectName": "JimmiLauncher",
-        "projectPath": "E:\\Jimmi\\JimmiLauncher\\JimmiLauncher.csproj",
-        "packagesPath": "C:\\Users\\sean\\.nuget\\packages\\",
-        "outputPath": "E:\\Jimmi\\JimmiLauncher\\obj\\",
+        "projectPath": "C:\\Users\\swill\\Documents\\code\\jimmi-launcher\\JimmiLauncher.csproj",
+        "packagesPath": "C:\\Users\\swill\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\swill\\Documents\\code\\jimmi-launcher\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
-          "C:\\Users\\sean\\AppData\\Roaming\\Godot\\mono\\GodotNuGetFallbackFolder",
-          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages",
-          "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\sean\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Users\\sean\\AppData\\Roaming\\NuGet\\config\\Godot.Offline.Config",
+          "C:\\Users\\swill\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -29,7 +26,6 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {

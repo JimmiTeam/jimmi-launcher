@@ -26,6 +26,9 @@ public partial class App : Application
         DatabaseHandler.InitializeDatabase();
         Globals.InitializeGlobals();
 
+        // Extract thumbnails
+        // ReplayMethods.ExtractThumbnails();
+
         // Initialize file watcher to run in background
         InitializeFileWatcher();
 
@@ -41,6 +44,7 @@ public partial class App : Application
 
             // Cleanup on application exit
             desktop.Exit += (s, e) => _fileWatcher?.Dispose();
+            desktop.Exit += (s, e) => ReplayMethods.DeleteThumbnails();
         }
 
         base.OnFrameworkInitializationCompleted();
