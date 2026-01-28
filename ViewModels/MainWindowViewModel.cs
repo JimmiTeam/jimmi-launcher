@@ -28,7 +28,7 @@ namespace JimmiLauncher.ViewModels
             switch (menuName)
             {
                 case "Main":
-                    CurrentMenu = new MainMenuViewModel();
+                    CurrentMenu = new MainMenuViewModel(NavigateToMenu);
                     break;
                 case "Replays":
                     CurrentMenu = new ReplayMenuViewModel();
@@ -55,7 +55,7 @@ namespace JimmiLauncher.ViewModels
         public MainWindowViewModel()
         {
             NavigateToMenuCommand = new RelayCommand<string>(NavigateToMenu);
-            CurrentMenu = new MainMenuViewModel();
+            CurrentMenu = new MainMenuViewModel(NavigateToMenu);
 
             _ = LoadBackgroundAsync();
         }

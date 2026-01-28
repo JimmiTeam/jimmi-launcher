@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("JimmiLauncher")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+238dd1bd9b0b12dd66c3b3507943780cb94f8e56")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+ac67dff6eb28bb8d1ac8dd2fb65ba2c6d86550de")]
 [assembly: System.Reflection.AssemblyProductAttribute("JimmiLauncher")]
 [assembly: System.Reflection.AssemblyTitleAttribute("JimmiLauncher")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

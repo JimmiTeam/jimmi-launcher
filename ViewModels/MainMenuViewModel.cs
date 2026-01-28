@@ -67,8 +67,16 @@ namespace JimmiLauncher.ViewModels
             }
         }
 
-        public MainMenuViewModel()
+        private Action<string>? _onNavigateRequested;
+        public Action<string>? OnNavigateRequested
         {
+            get => _onNavigateRequested;
+            set => _onNavigateRequested = value;
+        }
+
+        public MainMenuViewModel(Action<string>? onNavigateRequested = null)
+        {
+            _onNavigateRequested = onNavigateRequested;
             PlayRemixCommand = new RelayCommand(PlayRemix);
             PlayVanillaCommand = new RelayCommand(PlayVanilla);
             ToggleReplaysCommand = new RelayCommand(ToggleReplays);
@@ -195,7 +203,7 @@ namespace JimmiLauncher.ViewModels
 
         private void NavigateToReplayMenu()
         {
-            
+            _onNavigateRequested?.Invoke("Replays");
         }
     }
 }
