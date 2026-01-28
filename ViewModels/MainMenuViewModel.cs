@@ -1,3 +1,4 @@
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -5,6 +6,7 @@ using CommunityToolkit.Mvvm.Input;
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Runtime.InteropServices.Swift;
 using System.Threading.Tasks;
 
 namespace JimmiLauncher.ViewModels
@@ -29,7 +31,7 @@ namespace JimmiLauncher.ViewModels
 
         public string RemixPlayButtonLabel { get; } = "Play Smash Remix";
         public string VanillaPlayButtonLabel { get; } = "Play Vanilla Smash 64";
-        public string WatchReplaysButtonLabel { get; } = "View Saved Replays";
+        public string NavigateToReplaysButtonLabel { get; } = "View Saved Replays";
 
         private Bitmap? _logoImageSource;
         public Bitmap? LogoImageSource
@@ -65,7 +67,7 @@ namespace JimmiLauncher.ViewModels
             }
         }
 
-        public void MainWindowViewModel()
+        public MainMenuViewModel()
         {
             PlayRemixCommand = new RelayCommand(PlayRemix);
             PlayVanillaCommand = new RelayCommand(PlayVanilla);
@@ -193,7 +195,7 @@ namespace JimmiLauncher.ViewModels
 
         private void NavigateToReplayMenu()
         {
-            var index = 0;
+            
         }
     }
 }

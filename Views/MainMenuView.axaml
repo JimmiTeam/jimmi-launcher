@@ -42,12 +42,14 @@
         </Style>
         <Style Selector="CheckBox:checked">
             <Setter Property="Foreground" Value="Orange"/>
+            <Setter Property="Cursor" Value="Hand"/>
         </Style>
         <Style Selector="CheckBox:checked:pointerover /template/ ContentPresenter#PART_ContentPresenter">
             <Setter Property="Foreground" Value="Orange"/>
         </Style>
         <Style Selector="CheckBox:unchecked /template/ ContentPresenter#PART_ContentPresenter">
             <Setter Property="Foreground" Value="Chocolate"/>
+            <Setter Property="Cursor" Value="Hand"/>
         </Style>
     </UserControl.Styles>
 
@@ -88,9 +90,10 @@
                 Command="{Binding PlayVanillaCommand}" />
             <Button
                 Classes="MenuButton"
-                Content="{Binding WatchReplaysButtonLabel}"
+                Content="{Binding NavigateToReplaysButtonLabel}"
                 HorizontalAlignment="Center"
-                VerticalAlignment="Center" />
+                VerticalAlignment="Center"
+                Command="{Binding NavigateToReplayMenuCommand}" />
         </StackPanel>
     </Grid>
 

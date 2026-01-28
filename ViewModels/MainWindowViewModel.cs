@@ -23,7 +23,7 @@ namespace JimmiLauncher.ViewModels
 
         public RelayCommand<string> NavigateToMenuCommand { get; set;}
 
-        private void NavigateToMenu(string menuName)
+        public void NavigateToMenu(string menuName)
         {
             switch (menuName)
             {
