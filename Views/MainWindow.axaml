@@ -1,0 +1,99 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:JimmiLauncher.ViewModels"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" Width="1000" Height="600" CanResize="False"
+        x:Class="JimmiLauncher.Views.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        Icon="/Assets/jimmi-icon.ico"
+        Title="Jimmi Launcher">
+
+    <Window.Styles>
+        <Style Selector="Image.Oscillate">
+            <Setter Property="RenderTransformOrigin" Value="150,75"/>
+            <Setter Property="RenderTransform">
+                <RotateTransform Angle="0"/>
+            </Setter>
+
+            <Style.Animations>
+                <Animation Duration="0:0:6"
+                            IterationCount="Infinite"
+                            PlaybackDirection="Alternate"
+                            Easing="SineEaseInOut">
+                    <KeyFrame Cue="0%">
+                        <Setter Property="RotateTransform.Angle" Value="-4"/>
+                    </KeyFrame>
+                    <KeyFrame Cue="100%">
+                        <Setter Property="RotateTransform.Angle" Value="4"/>
+                    </KeyFrame>
+                </Animation>
+            </Style.Animations>
+        </Style>
+        <Style Selector="Button.MenuButton">
+            <Setter Property="FontSize" Value="18"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="FontFamily" Value="serif"/>
+            <Setter Property="Margin" Value="5"/>
+            <Setter Property="Background" Value="Orange"/>
+            <Setter Property="Foreground" Value="Black"/>
+            <Setter Property="Padding" Value="10,5"/>
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+        <Style Selector="Button.MenuButton:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="Chocolate"/>
+        </Style>
+        <Style Selector="CheckBox:checked">
+            <Setter Property="Foreground" Value="Orange"/>
+        </Style>
+        <Style Selector="CheckBox:checked:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Foreground" Value="Orange"/>
+        </Style>
+        <Style Selector="CheckBox:unchecked /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Foreground" Value="Chocolate"/>
+        </Style>
+    </Window.Styles>
+
+    <Window.Background>
+        <ImageBrush Source="{Binding BackgroundImageSource}" TileMode="Tile" Stretch="None" DestinationRect="0 0 128 128"/>
+    </Window.Background>
+
+    <Grid>
+        <Panel HorizontalAlignment="Right" VerticalAlignment="Top" Margin="10">
+            <CheckBox
+                Content="{Binding ReplaysLabel}"
+                IsChecked="{Binding IsReplaysEnabled, Mode=TwoWay}"
+                Command="{Binding ToggleReplaysCommand}" />
+        </Panel>
+
+        <StackPanel
+            Orientation="Vertical"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Center"
+            Spacing="20">
+            <Image
+                Classes="Oscillate"
+                Source="{Binding LogoImageSource}"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Top"
+                MaxWidth="300" />
+            <Button
+                Classes="MenuButton"
+                Content="{Binding RemixPlayButtonLabel}"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                Command="{Binding PlayRemixCommand}" />
+            <Button
+                Classes="MenuButton"
+                Content="{Binding VanillaPlayButtonLabel}"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                Command="{Binding PlayVanillaCommand}" />
+            <Button
+                Classes="MenuButton"
+                Content="{Binding WatchReplaysButtonLabel}"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center" />
+        </StackPanel>
+    </Grid>
+</Window>
