@@ -124,6 +124,22 @@
           }
         }
       },
+      "Avalonia.Controls.DataGrid/11.3.11": {
+        "type": "package",
+        "dependencies": {
+          "Avalonia": "11.3.11"
+        },
+        "compile": {
+          "lib/net8.0/Avalonia.Controls.DataGrid.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/net8.0/Avalonia.Controls.DataGrid.dll": {
+            "related": ".xml"
+          }
+        }
+      },
       "Avalonia.Desktop/11.3.11": {
         "type": "package",
         "dependencies": {
@@ -834,6 +850,25 @@
         "lib/netstandard2.0/Avalonia.Controls.ColorPicker.xml"
       ]
     },
+    "Avalonia.Controls.DataGrid/11.3.11": {
+      "sha512": "uC+LDVQeKmyXgHyX3t8FktkOOb77v9WIO+CPJq6/DwGiUt6PUq+ac/6was8syEzyP4VIx3qOfgTZdIT3bdAuSQ==",
+      "type": "package",
+      "path": "avalonia.controls.datagrid/11.3.11",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "Icon.png",
+        "avalonia.controls.datagrid.11.3.11.nupkg.sha512",
+        "avalonia.controls.datagrid.nuspec",
+        "lib/net6.0/Avalonia.Controls.DataGrid.dll",
+        "lib/net6.0/Avalonia.Controls.DataGrid.xml",
+        "lib/net8.0/Avalonia.Controls.DataGrid.dll",
+        "lib/net8.0/Avalonia.Controls.DataGrid.xml",
+        "lib/netstandard2.0/Avalonia.Controls.DataGrid.dll",
+        "lib/netstandard2.0/Avalonia.Controls.DataGrid.xml",
+        "readme.md"
+      ]
+    },
     "Avalonia.Desktop/11.3.11": {
       "sha512": "m60U1jV96RquwYGg4Pzwp0ENL1HUrM3YZLMCes0gWRn8x+webT9V4Wfs58MAdTOukXPpy9t1XhEd4NON674Wmw==",
       "type": "package",
@@ -1474,6 +1509,7 @@
   "projectFileDependencyGroups": {
     "net10.0": [
       "Avalonia >= 11.3.11",
+      "Avalonia.Controls.DataGrid >= 11.3.11",
       "Avalonia.Desktop >= 11.3.11",
       "Avalonia.Diagnostics >= 11.3.11",
       "Avalonia.Fonts.Inter >= 11.3.11",
@@ -1484,23 +1520,28 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\swill\\.nuget\\packages\\": {},
-    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
+    "C:\\Users\\sean\\.nuget\\packages\\": {},
+    "C:\\Users\\sean\\AppData\\Roaming\\Godot\\mono\\GodotNuGetFallbackFolder": {},
+    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {},
+    "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\swill\\Documents\\code\\jimmi-launcher\\JimmiLauncher.csproj",
+      "projectUniqueName": "E:\\Jimmi\\JimmiLauncher\\JimmiLauncher.csproj",
       "projectName": "JimmiLauncher",
-      "projectPath": "C:\\Users\\swill\\Documents\\code\\jimmi-launcher\\JimmiLauncher.csproj",
-      "packagesPath": "C:\\Users\\swill\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\swill\\Documents\\code\\jimmi-launcher\\obj\\",
+      "projectPath": "E:\\Jimmi\\JimmiLauncher\\JimmiLauncher.csproj",
+      "packagesPath": "C:\\Users\\sean\\.nuget\\packages\\",
+      "outputPath": "E:\\Jimmi\\JimmiLauncher\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
-        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        "C:\\Users\\sean\\AppData\\Roaming\\Godot\\mono\\GodotNuGetFallbackFolder",
+        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages",
+        "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
       ],
       "configFilePaths": [
-        "C:\\Users\\swill\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\sean\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\sean\\AppData\\Roaming\\NuGet\\config\\Godot.Offline.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
@@ -1509,6 +1550,7 @@
       ],
       "sources": {
         "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+        "C:\\Program Files\\dotnet\\library-packs": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
@@ -1534,6 +1576,10 @@
         "targetAlias": "net10.0",
         "dependencies": {
           "Avalonia": {
+            "target": "Package",
+            "version": "[11.3.11, )"
+          },
+          "Avalonia.Controls.DataGrid": {
             "target": "Package",
             "version": "[11.3.11, )"
           },

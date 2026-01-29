@@ -8,7 +8,7 @@
     
     <UserControl.Styles>
         <Style Selector="Image.Oscillate">
-            <Setter Property="RenderTransformOrigin" Value="150,75"/>
+            <Setter Property="RenderTransformOrigin" Value="250,125"/>
             <Setter Property="RenderTransform">
                 <RotateTransform Angle="0"/>
             </Setter>
@@ -28,14 +28,18 @@
             </Style.Animations>
         </Style>
         <Style Selector="Button.MenuButton">
-            <Setter Property="FontSize" Value="18"/>
+            <Setter Property="FontSize" Value="20"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="FontFamily" Value="serif"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
             <Setter Property="Margin" Value="5"/>
             <Setter Property="Background" Value="Orange"/>
             <Setter Property="Foreground" Value="Black"/>
             <Setter Property="Padding" Value="10,5"/>
             <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="MinWidth" Value="300"/>
+            <Setter Property="MinHeight" Value="50"/>
         </Style>
         <Style Selector="Button.MenuButton:pointerover /template/ ContentPresenter#PART_ContentPresenter">
             <Setter Property="Background" Value="Chocolate"/>
@@ -59,10 +63,7 @@
 
     <Grid>
         <Panel HorizontalAlignment="Right" VerticalAlignment="Top" Margin="10">
-            <CheckBox
-                Content="{Binding ReplaysLabel}"
-                IsChecked="{Binding IsReplaysEnabled, Mode=TwoWay}"
-                Command="{Binding ToggleReplaysCommand}" />
+            
         </Panel>
 
         <StackPanel
@@ -75,7 +76,7 @@
                 Source="{Binding LogoImageSource}"
                 HorizontalAlignment="Center"
                 VerticalAlignment="Top"
-                MaxWidth="300" />
+                MaxWidth="500" />
             <Button
                 Classes="MenuButton"
                 Content="{Binding RemixPlayButtonLabel}"
@@ -94,6 +95,12 @@
                 HorizontalAlignment="Center"
                 VerticalAlignment="Center"
                 Command="{Binding NavigateToReplayMenuCommand}" />
+            <CheckBox
+                Content="{Binding ReplaysLabel}"
+                IsChecked="{Binding IsReplaysEnabled, Mode=TwoWay}"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                Command="{Binding ToggleReplaysCommand}" />
         </StackPanel>
     </Grid>
 

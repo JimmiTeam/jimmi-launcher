@@ -92,7 +92,7 @@ namespace JimmiLauncher.ViewModels
             {
                 await Task.Run(() =>
                 {
-                    LogoImageSource = new Bitmap("Assets/jimmi-logo.png");
+                    LogoImageSource = new Bitmap("Assets/jimmi-logo2.png");
                 });
             }
             catch (System.Exception ex)
@@ -116,7 +116,7 @@ namespace JimmiLauncher.ViewModels
                 {
                     FileName = Globals.MupenExecutablePath,
                     Arguments = arguments,
-                    // UseShellExecute = true
+                    UseShellExecute = false
                 };
 
                 Debug.WriteLine($"Starting process: {processStartInfo.FileName} {processStartInfo.Arguments}");

@@ -27,10 +27,17 @@ public partial class App : Application
         Globals.InitializeGlobals();
 
         // Extract thumbnails
-        // ReplayMethods.ExtractThumbnails();
+        try
+        {
+            ReplayMethods.ExtractThumbnails();
+        }
+        catch (System.Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Failed to extract thumbnails: {ex.Message}");
+        }
 
         // Initialize file watcher to run in background
-        InitializeFileWatcher();
+        // InitializeFileWatcher();
 
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
@@ -43,7 +50,7 @@ public partial class App : Application
             };
 
             // Cleanup on application exit
-            desktop.Exit += (s, e) => _fileWatcher?.Dispose();
+            // desktop.Exit += (s, e) => _fileWatcher?.Dispose();
             desktop.Exit += (s, e) => ReplayMethods.DeleteThumbnails();
         }
 

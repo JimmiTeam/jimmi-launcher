@@ -151,3 +151,5 @@ C:\Users\swill\Documents\code\jimmi-launcher\obj\Debug\net10.0\refint\JimmiLaunc
 C:\Users\swill\Documents\code\jimmi-launcher\obj\Debug\net10.0\JimmiLauncher.pdb
 C:\Users\swill\Documents\code\jimmi-launcher\obj\Debug\net10.0\JimmiLauncher.genruntimeconfig.cache
 C:\Users\swill\Documents\code\jimmi-launcher\obj\Debug\net10.0\ref\JimmiLauncher.dll
+E:\Jimmi\JimmiLauncher\obj\Debug\net10.0\JimmiLauncher.sourcelink.json
+E:\Jimmi\JimmiLauncher\bin\Debug\net10.0\Avalonia.Controls.DataGrid.dll

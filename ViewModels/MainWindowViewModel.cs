@@ -31,7 +31,7 @@ namespace JimmiLauncher.ViewModels
                     CurrentMenu = new MainMenuViewModel(NavigateToMenu);
                     break;
                 case "Replays":
-                    CurrentMenu = new ReplayMenuViewModel();
+                    CurrentMenu = new ReplayMenuViewModel(NavigateToMenu);
                     break;
                 default:
                     throw new ArgumentException($"Unknown menu: {menuName}");
