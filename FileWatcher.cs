@@ -10,14 +10,25 @@ public static class FileWatcher
 {
     public static void OnCreated(object sender, FileSystemEventArgs e)
     {
-        var image = Image.Load(e.FullPath);
-        var encoder = new JpegEncoder
-        {
-            Quality = 40
-        };
-        image.Mutate(x => x.Resize(320, 240));
-        image.Save(e.FullPath.Replace(e.Name!, "thumbnail.jpg"), encoder);
-        File.Delete(e.FullPath);
+        // if (e.Name == null || e.Name.EndsWith("thumbnail.jpg"))
+        // {
+        //     return;
+        // }
+        // try
+        // {
+        //     var image = Image.Load(e.FullPath);
+        //     var encoder = new JpegEncoder
+        //     {
+        //         Quality = 30
+        //     };
+        //     image.Mutate(x => x.Resize(320, 240));
+        //     image.Save(e.FullPath.Replace(e.Name, "thumbnail.jpg"), encoder);
+        //     File.Delete(e.FullPath);
+        // }
+        // catch (Exception ex)
+        // {
+        //     Console.WriteLine($"Error processing created file: {ex.Message}");
+        // }
     }
 
     public static void OnDeleted(object sender, FileSystemEventArgs e)

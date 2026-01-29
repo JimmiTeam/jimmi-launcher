@@ -6,12 +6,134 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         x:DataType="vm:ReplayMenuViewModel" >
 
-        <Design.DataContext>
-            <vm:ReplayMenuViewModel />
-        </Design.DataContext>
+    <UserControl.Styles>
+        <Style Selector="Button.PageButton">
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Margin" Value="5"/>
+            <Setter Property="Background" Value="Orange"/>
+            <Setter Property="Foreground" Value="Black"/>
+            <Setter Property="Padding" Value="10,5"/>
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+        <Style Selector="Button.PageButton:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="Chocolate"/>
+        </Style>
+        <Style Selector="Button.BackButton">
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Background" Value="Orange"/>
+            <Setter Property="Foreground" Value="Black"/>
+            <Setter Property="Padding" Value="10,5"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Margin" Value="10"/>
+        </Style>
+        <Style Selector="Button.BackButton:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="Chocolate"/>
+        </Style>
+        <Style Selector="DataGridColumnHeader">
+            <Setter Property="Background" Value="Orange"/>
+            <Setter Property="Foreground" Value="Black"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Padding" Value="8"/>
+        </Style>
+        <Style Selector="DataGridRow">
+            <Setter Property="Foreground" Value="Black"/>
+            <Setter Property="Background" Value="Orange"/>
+        </Style>
+        <Style Selector="DataGridRow:pointerover">
+            <Setter Property="Background" Value="Chocolate"/>
+        </Style>
+        <Style Selector="DataGrid">
+            <Setter Property="BorderBrush" Value="Black"/>
+            <Setter Property="BorderThickness" Value="2"/>
+        </Style>
+    </UserControl.Styles>
 
-        <Grid>
-            <TextBlock Text="Replays" HorizontalAlignment="Center" VerticalAlignment="Top"/>
+    <Design.DataContext>
+        <vm:ReplayMenuViewModel />
+    </Design.DataContext>
+
+    <Grid RowDefinitions="Auto,*,Auto" Margin="20" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        <!-- Top Bar with Back Button -->
+        <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto" Margin="0,0,0,15">
+            <Button 
+                Grid.Column="0"
+                Classes="BackButton"
+                Content="Back"
+                Command="{Binding NavigateToMainCommand}"/>
+            <TextBlock 
+                Grid.Column="1"
+                Text="Saved Replays"
+                FontSize="28"
+                FontWeight="Bold"
+                Foreground="Orange"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"/>
         </Grid>
-    
+
+        <!-- Replays Table -->
+        <DataGrid 
+            Grid.Row="1"
+            ItemsSource="{Binding CurrentPageReplays}"
+            AutoGenerateColumns="False"
+            IsReadOnly="True"
+            CanUserReorderColumns="False"
+            CanUserResizeColumns="False"
+            CanUserSortColumns="False"
+            Background="#0a0a0a"
+            Foreground="White"
+            Margin="0,10,0,10">
+            <DataGrid.Columns>
+                <DataGridTemplateColumn Header="Preview" Width="Auto">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Image Source="{Binding Thumbnail}" Width="160" Height="120" Stretch="Uniform" Margin="5"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTextColumn Header="File Name" Binding="{Binding Name}" Width="*"/>
+                <DataGridTextColumn Header="Date Created" Binding="{Binding CreationDate}" Width="Auto"/>
+                <DataGridTemplateColumn Header="" Width="Auto">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Button Content="Watch Replay" 
+                                    Command="{Binding $parent[UserControl].((vm:ReplayMenuViewModel)DataContext).WatchReplayCommand}" 
+                                    CommandParameter="{Binding .}"
+                                    Classes="PageButton"
+                                    Margin="5"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <!-- Pagination Controls -->
+        <!-- <StackPanel 
+            Grid.Row="2"
+            Orientation="Horizontal"
+            HorizontalAlignment="Center"
+            Margin="0,20,0,0"
+            Spacing="10">
+            <Button 
+                Classes="PageButton"
+                Content="← Previous"
+                Command="{Binding PreviousPageCommand}"/>
+            <TextBlock 
+                VerticalAlignment="Center"
+                Foreground="White"
+                FontSize="16"
+                FontWeight="Bold">
+                <Run Text="Page "/>
+                <Run Text="{Binding CurrentPage}"/>
+                <Run Text=" of "/>
+                <Run Text="{Binding TotalPages}"/>
+            </TextBlock>
+            <Button 
+                Classes="PageButton"
+                Content="Next →"
+                Command="{Binding NextPageCommand}"/>
+        </StackPanel> -->
+    </Grid>
+
 </UserControl>
