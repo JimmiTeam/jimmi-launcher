@@ -2,6 +2,7 @@ using System;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -14,12 +15,14 @@ namespace JimmiLauncher.ViewModels
         public string Name { get; set; }
         public DateTime CreationDate { get; set; }
         public Bitmap? Thumbnail { get; set; }
+        public string GameType { get; set; }
 
-        public ReplayItem(string name, DateTime creationDate, Bitmap? thumbnail)
+        public ReplayItem(string name, DateTime creationDate, Bitmap? thumbnail, string gametype)
         {
             Name = name;
             CreationDate = creationDate;
             Thumbnail = thumbnail;
+            GameType = gametype;
         }
     }
 
@@ -101,24 +104,26 @@ namespace JimmiLauncher.ViewModels
 
                 foreach (var file in files)
                 {
-                    var name = file.Name;
-                    var date = file.CreationTime;
-                    Bitmap? thumbnail = null;
-                    var thumbnailPath = Path.Combine("temp_thumbnails", name.Replace(".jrpl", ".jpg"));
-
-                    if (File.Exists(thumbnailPath))
+                    using (ZipArchive zip = ZipFile.Open($"{file.FullName}", ZipArchiveMode.Read))
                     {
-                        try
+                        var gametype = zip.GetEntry("remix") != null ? "Remix" : "Vanilla";
+                        var name = file.Name;
+                        var date = file.CreationTime;
+                        Bitmap? thumbnail = null;
+                        var thumbnailPath = Path.Combine("temp_thumbnails", name.Replace(".jrpl", ".jpg"));
+                        if (File.Exists(thumbnailPath))
                         {
-                            thumbnail = new Bitmap(thumbnailPath);
+                            try
+                            {
+                                thumbnail = new Bitmap(thumbnailPath);
+                            }
+                            catch (Exception ex)
+                            {
+                                Console.WriteLine($"Error loading thumbnail for {name}: {ex.Message}");
+                            }
                         }
-                        catch (Exception ex)
-                        {
-                            Console.WriteLine($"Error loading thumbnail for {name}: {ex.Message}");
-                        }
+                        replayItems.Add(new ReplayItem(name, date, thumbnail, gametype));
                     }
-
-                    replayItems.Add(new ReplayItem(name, date, thumbnail));
                 }
 
                 Console.WriteLine($"Found {replayItems.Count} replay files");

@@ -62,10 +62,6 @@
     </Design.DataContext>
 
     <Grid>
-        <Panel HorizontalAlignment="Right" VerticalAlignment="Top" Margin="10">
-            
-        </Panel>
-
         <StackPanel
             Orientation="Vertical"
             HorizontalAlignment="Center"
@@ -77,6 +73,12 @@
                 HorizontalAlignment="Center"
                 VerticalAlignment="Top"
                 MaxWidth="500" />
+            <Button
+                Classes="MenuButton"
+                Content="Play Online"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                Command="{Binding PlayRemixCommand}" />
             <Button
                 Classes="MenuButton"
                 Content="{Binding RemixPlayButtonLabel}"

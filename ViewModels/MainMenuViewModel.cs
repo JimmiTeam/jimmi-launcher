@@ -27,10 +27,10 @@ namespace JimmiLauncher.ViewModels
         public string ReplaysLabel { get; } = "Enable Replays";
 
         [ObservableProperty]
-        bool isReplaysEnabled = false;
+        bool isReplaysEnabled = Globals.ReplaysEnabled;
 
-        public string RemixPlayButtonLabel { get; } = "Play Smash Remix";
-        public string VanillaPlayButtonLabel { get; } = "Play Vanilla Smash 64";
+        public string RemixPlayButtonLabel { get; } = "Play Offline Smash Remix";
+        public string VanillaPlayButtonLabel { get; } = "Play Offline Smash 64";
         public string NavigateToReplaysButtonLabel { get; } = "View Saved Replays";
 
         private Bitmap? _logoImageSource;
