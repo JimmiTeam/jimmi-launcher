@@ -1,0 +1,89 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:JimmiLauncher.ViewModels"
+             x:Class="JimmiLauncher.Views.OfflineMenuView"
+             x:DataType="vm:OfflineMenuViewModel">
+
+    <UserControl.Styles>
+        <Style Selector="Button">
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="5"/>
+            <Setter Property="Background" Value="LightSlateGray"/>
+            <Setter Property="Foreground" Value="Black"/>
+            <Setter Property="Padding" Value="10,5"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="MinWidth" Value="50"/>
+        </Style>
+        <Style Selector="Button:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="SlateGray"/>
+        </Style>
+        <Style Selector="Border">
+            <Setter Property="CornerRadius" Value="5"/>
+            <Setter Property="Padding" Value="10"/>
+            <Setter Property="Background" Value="Orange"/>
+            <Setter Property="BorderBrush" Value="DarkOrange"/>
+            <Setter Property="MinWidth" Value="500"/>
+        </Style>
+        <Style Selector="Button.BackButton">
+            <Setter Property="FontSize" Value="18"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="Background" Value="Orange"/>
+            <Setter Property="Foreground" Value="Black"/>
+            <Setter Property="Padding" Value="10,5"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Margin" Value="10"/>
+            <Setter Property="MinWidth" Value="120"/>
+        </Style>
+        <Style Selector="Button.BackButton:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="Chocolate"/>
+        </Style>
+        <Style Selector="CheckBox:checked">
+            <Setter Property="Foreground" Value="Orange"/>
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+        <Style Selector="CheckBox:checked:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Foreground" Value="Orange"/>
+        </Style>
+        <Style Selector="CheckBox:unchecked /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Foreground" Value="Chocolate"/>
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+    </UserControl.Styles>
+
+    <Design.DataContext>
+        <vm:OfflineMenuViewModel />
+    </Design.DataContext>
+
+
+    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Top" Spacing="20" >
+        <StackPanel HorizontalAlignment="Left" VerticalAlignment="Top" Orientation="Horizontal">
+            <Button
+                Classes="BackButton"
+                Content="Back"
+                Command="{Binding NavigateToMainCommand}"/>
+
+            <CheckBox Content="Enable Replays" 
+                IsChecked="{Binding IsReplaysEnabled}" 
+                Foreground="Orange"/>
+        </StackPanel>
+
+        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Top" Spacing="20" >
+            <TextBlock Text="Play Offline" FontSize="24" HorizontalAlignment="Center" FontWeight="Bold" Foreground="Orange"/>
+
+            <DropDownButton Content="Select Game" HorizontalAlignment="Center">
+                <DropDownButton.Flyout>
+                    <MenuFlyout>
+                        <MenuItem Header="Version 1.0"/>
+                        <MenuItem Header="Version 1.1"/>
+                        <MenuItem Header="Version 2.0"/>
+                    </MenuFlyout>
+                </DropDownButton.Flyout>
+            </DropDownButton>
+        </StackPanel>
+    </StackPanel>
+</UserControl>

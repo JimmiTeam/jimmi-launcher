@@ -61,6 +61,15 @@ namespace JimmiLauncher.ViewModels
             get => true;
             protected set => throw new Exception("Cannot set CanNavigateMain in ReplayMenuViewModel");
         }
+        public override bool CanNavigateOnline {
+            get => false;
+            protected set => throw new Exception("Cannot set CanNavigateOnline in ReplayMenuViewModel");
+        }
+
+        public override bool CanNavigateOffline {
+            get => false;
+            protected set => throw new Exception("Cannot set CanNavigateOffline in ReplayMenuViewModel");
+        }
 
         public ReplayMenuViewModel(Action<string>? onNavigateRequested = null)
         {

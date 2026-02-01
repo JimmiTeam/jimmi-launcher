@@ -44,17 +44,6 @@
         <Style Selector="Button.MenuButton:pointerover /template/ ContentPresenter#PART_ContentPresenter">
             <Setter Property="Background" Value="Chocolate"/>
         </Style>
-        <Style Selector="CheckBox:checked">
-            <Setter Property="Foreground" Value="Orange"/>
-            <Setter Property="Cursor" Value="Hand"/>
-        </Style>
-        <Style Selector="CheckBox:checked:pointerover /template/ ContentPresenter#PART_ContentPresenter">
-            <Setter Property="Foreground" Value="Orange"/>
-        </Style>
-        <Style Selector="CheckBox:unchecked /template/ ContentPresenter#PART_ContentPresenter">
-            <Setter Property="Foreground" Value="Chocolate"/>
-            <Setter Property="Cursor" Value="Hand"/>
-        </Style>
     </UserControl.Styles>
 
     <Design.DataContext>
@@ -78,31 +67,19 @@
                 Content="Play Online"
                 HorizontalAlignment="Center"
                 VerticalAlignment="Center"
-                Command="{Binding PlayRemixCommand}" />
+                Command="{Binding NavigateToOnlineMenuCommand}" />
             <Button
                 Classes="MenuButton"
-                Content="{Binding RemixPlayButtonLabel}"
+                Content="Play Offline"
                 HorizontalAlignment="Center"
                 VerticalAlignment="Center"
-                Command="{Binding PlayRemixCommand}" />
-            <Button
-                Classes="MenuButton"
-                Content="{Binding VanillaPlayButtonLabel}"
-                HorizontalAlignment="Center"
-                VerticalAlignment="Center"
-                Command="{Binding PlayVanillaCommand}" />
+                Command="{Binding NavigateToOfflineMenuCommand}" />
             <Button
                 Classes="MenuButton"
                 Content="{Binding NavigateToReplaysButtonLabel}"
                 HorizontalAlignment="Center"
                 VerticalAlignment="Center"
                 Command="{Binding NavigateToReplayMenuCommand}" />
-            <CheckBox
-                Content="{Binding ReplaysLabel}"
-                IsChecked="{Binding IsReplaysEnabled, Mode=TwoWay}"
-                HorizontalAlignment="Center"
-                VerticalAlignment="Center"
-                Command="{Binding ToggleReplaysCommand}" />
         </StackPanel>
     </Grid>
 

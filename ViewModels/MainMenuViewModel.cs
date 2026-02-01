@@ -13,21 +13,14 @@ namespace JimmiLauncher.ViewModels
 {
     public partial class MainMenuViewModel : MenuViewModelBase
     {
-        public override bool CanNavigateReplays {
-            get => true;
-            protected set => throw new Exception("Cannot set CanNavigateReplays in MainMenuViewModel");
-        }
+        public override bool CanNavigateReplays { get; protected set; } = true;
 
-        public override bool CanNavigateMain { 
-            get => false;
-            protected set => throw new Exception("Cannot set CanNavigateMain in MainMenuViewModel");
-        }
+        public override bool CanNavigateMain { get; protected set; } = false;
+        public override bool CanNavigateOnline { get; protected set; } = true;
+        public override bool CanNavigateOffline { get; protected set; } = true;
+
 
         public string Greeting { get; } = "Jimmi Launcher";
-        public string ReplaysLabel { get; } = "Enable Replays";
-
-        [ObservableProperty]
-        bool isReplaysEnabled = Globals.ReplaysEnabled;
 
         public string RemixPlayButtonLabel { get; } = "Play Offline Smash Remix";
         public string VanillaPlayButtonLabel { get; } = "Play Offline Smash 64";
@@ -46,13 +39,10 @@ namespace JimmiLauncher.ViewModels
                 }
             }
         }
-
-        public RelayCommand PlayRemixCommand { get; set; }
-        public RelayCommand PlayVanillaCommand { get; set; }
-        public RelayCommand ToggleReplaysCommand { get; set; }
         public RelayCommand<object> WatchRemixCommand { get; set; }
         public RelayCommand NavigateToReplayMenuCommand { get; set; }
-
+        public RelayCommand NavigateToOnlineMenuCommand { get; set; }
+        public RelayCommand NavigateToOfflineMenuCommand { get; set; }
         private MenuViewModelBase? _currentMenu;
         public MenuViewModelBase? CurrentMenu
         {
@@ -77,12 +67,10 @@ namespace JimmiLauncher.ViewModels
         public MainMenuViewModel(Action<string>? onNavigateRequested = null)
         {
             _onNavigateRequested = onNavigateRequested;
-            PlayRemixCommand = new RelayCommand(PlayRemix);
-            PlayVanillaCommand = new RelayCommand(PlayVanilla);
-            ToggleReplaysCommand = new RelayCommand(ToggleReplays);
             WatchRemixCommand = new RelayCommand<object>((param) => WatchRemix(param!));
             NavigateToReplayMenuCommand = new RelayCommand(NavigateToReplayMenu);
-
+            NavigateToOnlineMenuCommand = new RelayCommand(NavigateToOnlineMenu);
+            NavigateToOfflineMenuCommand = new RelayCommand(NavigateToOfflineMenu);
             // Load bitmap asynchronously to avoid blocking UI
             _ = LoadLogoAsync();
         }
@@ -98,36 +86,6 @@ namespace JimmiLauncher.ViewModels
             catch (System.Exception ex)
             {
                 Debug.WriteLine($"Failed to load logo: {ex.Message}");
-            }
-        }
-        
-
-        private void PlayGame(string gamePath)
-        {
-            try
-            {      
-                var folder = "../mupen64plus-ui-console/projects/msvc/x64/Release";
-                var arguments = $"--configdir . --datadir {folder} --plugindir {folder} {gamePath}";
-                if (Globals.ReplaysEnabled)
-                {
-                    arguments = $"--replays {Globals.ReplaysFolderPath} " + arguments;
-                }
-                var processStartInfo = new ProcessStartInfo
-                {
-                    FileName = Globals.MupenExecutablePath,
-                    Arguments = arguments,
-                    UseShellExecute = false
-                };
-
-                Debug.WriteLine($"Starting process: {processStartInfo.FileName} {processStartInfo.Arguments}");
-
-                Process game = Process.Start(processStartInfo)!;
-                game.EnableRaisingEvents = true;
-                game.Exited += ReplayMethods.CompressArchives;
-            }
-            catch (Exception e)
-            {
-                Debug.WriteLine($"Could not start process for {gamePath}: {e.Message}");
             }
         }
 
@@ -178,32 +136,19 @@ namespace JimmiLauncher.ViewModels
             WatchReplays(Globals.VanillaRomPath, replayPath);
         }
 
-        private void PlayRemix()
-        {
-            if (!File.Exists(Globals.RemixRomPath))
-            {
-                return;
-            }
-            PlayGame(Globals.RemixRomPath);
-        }
-
-        private void PlayVanilla()
-        {
-            if (!File.Exists(Globals.VanillaRomPath))
-            {
-                return;
-            }
-            PlayGame(Globals.VanillaRomPath);
-        }
-
-        private void ToggleReplays()
-        {
-            Globals.ReplaysEnabled = !Globals.ReplaysEnabled;
-        }
-
         private void NavigateToReplayMenu()
         {
             _onNavigateRequested?.Invoke("Replays");
+        }
+
+        private void NavigateToOnlineMenu()
+        {
+            _onNavigateRequested?.Invoke("Online");
+        }
+
+        private void NavigateToOfflineMenu()
+        {
+            _onNavigateRequested?.Invoke("Offline");
         }
     }
 }

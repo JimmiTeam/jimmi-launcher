@@ -33,6 +33,12 @@ namespace JimmiLauncher.ViewModels
                 case "Replays":
                     CurrentMenu = new ReplayMenuViewModel(NavigateToMenu);
                     break;
+                case "Online":
+                    CurrentMenu = new OnlineMenuViewModel(NavigateToMenu);
+                    break;
+                case "Offline":
+                    CurrentMenu = new OfflineMenuViewModel(NavigateToMenu);
+                    break;
                 default:
                     throw new ArgumentException($"Unknown menu: {menuName}");
             }
@@ -54,7 +60,7 @@ namespace JimmiLauncher.ViewModels
 
         public MainWindowViewModel()
         {
-            NavigateToMenuCommand = new RelayCommand<string>(NavigateToMenu);
+            NavigateToMenuCommand = new RelayCommand<string>(NavigateToMenu!);
             CurrentMenu = new MainMenuViewModel(NavigateToMenu);
 
             _ = LoadBackgroundAsync();

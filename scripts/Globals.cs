@@ -9,6 +9,11 @@ namespace JimmiLauncher
         public static string VanillaRomPath = "./roms/smash.z64";
         public static string ReplaysFolderPath = "./replays/";
         public static string MupenExecutablePath = "../mupen64plus-ui-console/projects/msvc/x64/Release/mupen64plus-ui-console.exe";
+        
+        // Online Globals
+        public static string? OnlineHostToken = null;
+        public static string? OnlineClientToken = null;
+        public static string? OnlineRoomCode = null;
 
         public static void InitializeGlobals()
         {
