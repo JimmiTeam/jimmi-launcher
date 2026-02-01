@@ -1,5 +1,8 @@
 
 
+using System;
+using System.IO;
+
 namespace JimmiLauncher
 {
     public static class Globals
@@ -14,6 +17,8 @@ namespace JimmiLauncher
         public static string? OnlineHostToken = null;
         public static string? OnlineClientToken = null;
         public static string? OnlineRoomCode = null;
+        public static string? NetplayMetadataPath = null;
+        public static string? NetplaySavestatePath = null;
 
         public static void InitializeGlobals()
         {
@@ -21,6 +26,14 @@ namespace JimmiLauncher
             VanillaRomPath = DatabaseHandler.GetPath("VanillaRom") ?? VanillaRomPath;
             ReplaysFolderPath = DatabaseHandler.GetPath("ReplaysFolder") ?? ReplaysFolderPath;
             MupenExecutablePath = DatabaseHandler.GetPath("MupenExecutable") ?? MupenExecutablePath;
+        }
+
+        public static string GetRomMd5(string romPath)
+        {
+            using var md5 = System.Security.Cryptography.MD5.Create();
+            using var stream = File.OpenRead(romPath);
+            var hash = md5.ComputeHash(stream);
+            return BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant();
         }
     }
 }
