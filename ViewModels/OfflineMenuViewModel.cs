@@ -61,9 +61,26 @@ public partial class OfflineMenuViewModel : MenuViewModelBase
 
     private readonly Action<string>? _onNavigateRequested;
 
+    [ObservableProperty]
+    private System.Collections.ObjectModel.ObservableCollection<GameRom> _availableGames = new();
+
+    [ObservableProperty]
+    private GameRom? _selectedGame;
+
     public OfflineMenuViewModel(Action<string>? onNavigateRequested = null)
     {
         _onNavigateRequested = onNavigateRequested;
+        try {
+            AvailableGames = new System.Collections.ObjectModel.ObservableCollection<GameRom>(DatabaseHandler.GetGames());
+            SelectedGame = System.Linq.Enumerable.FirstOrDefault(AvailableGames);
+        } catch {} 
+    }
+
+    [RelayCommand]
+    private void PlaySelectedGame()
+    {
+        if (SelectedGame != null)
+            PlayGame(SelectedGame.GamePath);
     }
 
     [RelayCommand]

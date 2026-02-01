@@ -16,7 +16,7 @@
             <Setter Property="Foreground" Value="Black"/>
             <Setter Property="Padding" Value="10,5"/>
             <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="MinWidth" Value="50"/>
+            <Setter Property="MinWidth" Value="100"/>
         </Style>
         <Style Selector="Button:pointerover /template/ ContentPresenter#PART_ContentPresenter">
             <Setter Property="Background" Value="SlateGray"/>
@@ -25,14 +25,14 @@
             <Setter Property="CornerRadius" Value="5"/>
             <Setter Property="Padding" Value="10"/>
             <Setter Property="Background" Value="Orange"/>
-            <Setter Property="BorderBrush" Value="DarkOrange"/>
+            <Setter Property="BorderBrush" Value="Chocolate"/>
             <Setter Property="MinWidth" Value="500"/>
         </Style>
         <Style Selector="Button.BackButton">
             <Setter Property="FontSize" Value="18"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="HorizontalContentAlignment" Value="Center"/>
-            <Setter Property="Background" Value="Orange"/>
+            <Setter Property="Background" Value="LightSlateGray"/>
             <Setter Property="Foreground" Value="Black"/>
             <Setter Property="Padding" Value="10,5"/>
             <Setter Property="Cursor" Value="Hand"/>
@@ -40,7 +40,24 @@
             <Setter Property="MinWidth" Value="120"/>
         </Style>
         <Style Selector="Button.BackButton:pointerover /template/ ContentPresenter#PART_ContentPresenter">
-            <Setter Property="Background" Value="Chocolate"/>
+            <Setter Property="Background" Value="SlateGray"/>
+        </Style>
+        <Style Selector="Button.StartButton">
+            <Setter Property="FontSize" Value="20"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="Background" Value="Green"/>
+            <Setter Property="Foreground" Value="Black"/>
+            <Setter Property="Padding" Value="10,5"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Margin" Value="10"/>
+            <Setter Property="MinWidth" Value="200"/>
+        </Style>
+        <Style Selector="Button.StartButton:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="DarkGreen"/>
+        </Style>
+        <Style Selector="Button.StartButton:disabled /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="Gray"/>
         </Style>
         <Style Selector="CheckBox:checked">
             <Setter Property="Foreground" Value="Orange"/>
@@ -72,18 +89,21 @@
                 Foreground="Orange"/>
         </StackPanel>
 
-        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Top" Spacing="20" >
-            <TextBlock Text="Play Offline" FontSize="24" HorizontalAlignment="Center" FontWeight="Bold" Foreground="Orange"/>
-
-            <DropDownButton Content="Select Game" HorizontalAlignment="Center">
-                <DropDownButton.Flyout>
-                    <MenuFlyout>
-                        <MenuItem Header="Version 1.0"/>
-                        <MenuItem Header="Version 1.1"/>
-                        <MenuItem Header="Version 2.0"/>
-                    </MenuFlyout>
-                </DropDownButton.Flyout>
-            </DropDownButton>
+        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="20" >
+            <TextBlock Text="Play Offline" Classes="" FontSize="24" HorizontalAlignment="Center" FontWeight="Bold" Foreground="Orange"/>
+            <Border>
+                <StackPanel>
+                    <TextBlock Text="Select a game:" Foreground="Black" HorizontalAlignment="Center" FontSize="18" FontWeight="Bold"/>
+                    <ComboBox ItemsSource="{Binding AvailableGames}" SelectedItem="{Binding SelectedGame}" MinWidth="300" HorizontalAlignment="Center">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding GameName}" Foreground="Black"/>
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
+                    <Button Content="Play Game" Classes="StartButton" Command="{Binding PlaySelectedGameCommand}" HorizontalAlignment="Center"/>
+                </StackPanel>
+            </Border>
         </StackPanel>
     </StackPanel>
 </UserControl>

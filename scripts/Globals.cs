@@ -10,7 +10,7 @@ namespace JimmiLauncher
         public static bool ReplaysEnabled = false;
         public static string RemixRomPath = "./roms/remix.z64";
         public static string VanillaRomPath = "./roms/smash.z64";
-        public static string ReplaysFolderPath = "./replays/";
+        public static string ReplaysFolderPath = $"{Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)}/Jimmi/replays/";
         public static string MupenExecutablePath = "../mupen64plus-ui-console/projects/msvc/x64/Release/mupen64plus-ui-console.exe";
         
         // Online Globals

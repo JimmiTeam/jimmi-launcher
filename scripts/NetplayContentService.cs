@@ -24,7 +24,7 @@ public sealed class NetplayContentService
         _publicKeyPem = publicKeyPem;
     }
 
-    public async Task<Content?> GetContentAttestationAsync()
+    public async Task<Content?> GetContentAttestationAsync(string romPath)
     {
         var manifestJsonUrl = new Uri(_contentBaseUrl, $"content/manifest.json");
         var manifestSigUrl = new Uri(_contentBaseUrl, $"content/manifest.sig");
@@ -40,7 +40,7 @@ public sealed class NetplayContentService
         if (manifest.Bundles.Length == 0)
             throw new InvalidOperationException("Content manifest contains no bundles.");
         
-        var romMd5 = Globals.GetRomMd5(Globals.RemixRomPath).ToUpper();
+        var romMd5 = Globals.GetRomMd5(romPath).ToUpper();
 
         var manifestBundle = manifest?.Bundles?.FirstOrDefault(b =>
             b?.Compat?.CoreBuildId == _coreBuildId && b?.Compat?.RomMd5 == romMd5

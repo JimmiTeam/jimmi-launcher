@@ -44,6 +44,20 @@
         <Style Selector="Button.MenuButton:pointerover /template/ ContentPresenter#PART_ContentPresenter">
             <Setter Property="Background" Value="Chocolate"/>
         </Style>
+        <Style Selector="Button.SettingsButton">
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="5"/>
+            <Setter Property="Background" Value="Orange"/>
+            <Setter Property="Foreground" Value="Black"/>
+            <Setter Property="Padding" Value="10,5"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="MinWidth" Value="100"/>
+        </Style>
+        <Style Selector="Button.SettingsButton:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="Chocolate"/>
+        </Style>
     </UserControl.Styles>
 
     <Design.DataContext>
@@ -51,6 +65,20 @@
     </Design.DataContext>
 
     <Grid>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10">
+            <Button
+                Content="Add Game"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Center"
+                Classes="SettingsButton"
+                Click="AddGame_Click" />
+            <Button
+                Content="Settings"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Center"
+                Classes="SettingsButton" />
+        </StackPanel>
+
         <StackPanel
             Orientation="Vertical"
             HorizontalAlignment="Center"

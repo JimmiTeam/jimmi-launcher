@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using LiteDB;
 
 namespace JimmiLauncher 
@@ -10,6 +11,14 @@ namespace JimmiLauncher
         public int Id { get; set; }
         public string PathType { get; set; } = string.Empty;
         public string PathValue { get; set; } = string.Empty;
+    }
+
+    public class GameRom
+    {
+        public int Id { get; set; }
+        public string GameName { get; set; } = string.Empty;
+        public string GamePath { get; set; } = string.Empty;
+        public string GameId { get; set; } = string.Empty;
     }
 
     public static class DatabaseHandler
@@ -29,12 +38,13 @@ namespace JimmiLauncher
             var collection = _database.GetCollection<PathEntry>("Paths");
             collection.EnsureIndex(x => x.PathType);
 
+            var gamesCollection = _database.GetCollection<GameRom>("GameRoms");
+            gamesCollection.EnsureIndex(x => x.GamePath);
+
             // Insert default paths if they do not exist
             var defaultPaths = new List<(string Type, string Value)>
             {
-                ("RemixRom", "E:\\Jimmi\\JimmiLauncher\\roms\\remix.z64"),
-                ("VanillaRom", "E:\\Jimmi\\JimmiLauncher\\roms\\smash.z64"),
-                ("ReplaysFolder", "E:\\Jimmi\\JimmiLauncher\\replays\\"),
+                ("ReplaysFolder", $"{Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)}/Jimmi/Replays/"),
                 ("MupenExecutable", "E:\\Jimmi\\mupen64plus-ui-console\\projects\\msvc\\x64\\Release\\mupen64plus-ui-console.exe")
             };
 
@@ -60,5 +70,30 @@ namespace JimmiLauncher
             var entry = collection.FindOne(x => x.PathType == pathType);
             return entry?.PathValue;
         }
+
+        public static void AddGame(string name, string path, string id)
+        {
+            if (_database == null) return;
+            var collection = _database.GetCollection<GameRom>("GameRoms");
+            
+            var existing = collection.FindOne(x => x.GamePath == path);
+            if (existing == null)
+            {
+                collection.Insert(new GameRom { GameName = name, GamePath = path, GameId = id });
+            }
+            else 
+            {
+                existing.GameName = name;
+                existing.GameId = id;
+                collection.Update(existing);
+            }
+        }
+
+        public static List<GameRom> GetGames()
+        {
+            if (_database == null) return new List<GameRom>();
+            return _database.GetCollection<GameRom>("GameRoms").FindAll().ToList();
+        }
+
     }
 }

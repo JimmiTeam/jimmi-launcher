@@ -48,11 +48,20 @@ public partial class OnlineMenuViewModel : MenuViewModelBase
     [ObservableProperty]
     private bool _isReplaysEnabled = Globals.ReplaysEnabled;
 
+    [ObservableProperty]
+    private System.Collections.ObjectModel.ObservableCollection<GameRom> _availableGames = new();
+
+    [ObservableProperty]
+    private GameRom? _selectedGame;
 
     public OnlineMenuViewModel(Action<string>? onNavigateRequested = null)
     {
         _onNavigateRequested = onNavigateRequested;
         _contentService = new NetplayContentService(_contentBaseUrl, _coreBuildId, _publicKeyPem);
+        try {
+             AvailableGames = new System.Collections.ObjectModel.ObservableCollection<GameRom>(DatabaseHandler.GetGames());
+             SelectedGame = System.Linq.Enumerable.FirstOrDefault(AvailableGames);
+        } catch {}
     }
 
     partial void OnIsReplaysEnabledChanged(bool value)
@@ -65,12 +74,12 @@ public partial class OnlineMenuViewModel : MenuViewModelBase
     [RelayCommand]
     private void StartGame()
     {
-         if (!File.Exists(Globals.RemixRomPath))
+         if (SelectedGame == null || !File.Exists(SelectedGame.GamePath))
         {
-            StatusMessage = "Remix ROM not found.";
+            StatusMessage = "ROM not found or selected.";
             return;
         }
-        PlayGame(Globals.RemixRomPath);
+        PlayGame(SelectedGame.GamePath);
     }
 
     private void PlayGame(string gamePath)
@@ -79,7 +88,7 @@ public partial class OnlineMenuViewModel : MenuViewModelBase
         {      
             var folder = "../mupen64plus-ui-console/projects/msvc/x64/Release";
             var arguments = $"--netplay --netplayrelayhost 45.76.57.98 --netplaystatepath {Globals.NetplaySavestatePath} --configdir . --datadir {folder} --plugindir {folder} {gamePath}";
-            
+            Console.WriteLine(arguments);
             // Online Tokens
             if (!string.IsNullOrEmpty(Globals.OnlineHostToken))
             {
@@ -90,8 +99,6 @@ public partial class OnlineMenuViewModel : MenuViewModelBase
                  arguments = $"--netplaytoken {Globals.OnlineClientToken} " + arguments;
             }
 
-            // Replays - must be prepended or appended carefully. 
-            // The original code prepended it.
             if (Globals.ReplaysEnabled)
             {
                 arguments = $"--replays {Globals.ReplaysFolderPath} " + arguments;
@@ -145,7 +152,7 @@ public partial class OnlineMenuViewModel : MenuViewModelBase
                     id = _attestation.Id,
                     compat = new {
                         coreBuildId = _coreBuildId,
-                        romMd5 = Globals.GetRomMd5(Globals.RemixRomPath).ToUpperInvariant(),
+                        romMd5 = Globals.GetRomMd5(SelectedGame!.GamePath).ToUpperInvariant(),
                     },
                     metadata = new { key = _attestation.Metadata.Key, sha256 = _attestation.Metadata.Sha256 },
                     savestate = new { key = _attestation.Savestate.Key, sha256 = _attestation.Savestate.Sha256 }
@@ -164,9 +171,9 @@ public partial class OnlineMenuViewModel : MenuViewModelBase
             {
                 Globals.OnlineHostToken = result.Token?.HostToken;
                 Globals.OnlineRoomCode = result.RoomCode;
-                var netplayMetadataPath = $"{Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)}/JimmiLauncher/netplay/metadata/{result!.Content!.Id}.json";
+                var netplayMetadataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Jimmi", "NetplayContent", "content", "metadata", $"{result!.Content!.Id}.json");
                 Globals.NetplayMetadataPath = netplayMetadataPath;
-                var netplaySavestatePath = $"{Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)}/JimmiLauncher/netplay/savestates/{result!.Content!.Id}.st";
+                var netplaySavestatePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Jimmi", "NetplayContent", "content", "savestates", $"{result!.Content!.Id}.st");
                 Globals.NetplaySavestatePath = netplaySavestatePath;
                 Globals.OnlineClientToken = null;
 
@@ -193,6 +200,16 @@ public partial class OnlineMenuViewModel : MenuViewModelBase
             StatusMessage = "Please enter a join code.";
             return;
         }
+        if (_attestation == null) 
+        {
+             // Try to ensure content from selected game
+             if (!await EnsureContentAsync() || _attestation == null)
+             {
+                 StatusMessage = "Cannot join: Content verification failed.";
+                 return;
+             }
+        }
+
         try
         {
             IsBusy = true;
@@ -205,7 +222,7 @@ public partial class OnlineMenuViewModel : MenuViewModelBase
                     id = _attestation!.Id,
                     compat = new {
                         coreBuildId = _coreBuildId,
-                        romMd5 = Globals.GetRomMd5(Globals.RemixRomPath).ToUpperInvariant(),
+                        romMd5 = Globals.GetRomMd5(SelectedGame!.GamePath).ToUpperInvariant(),
                     },
                     metadata = new { key = _attestation.Metadata.Key, sha256 = _attestation.Metadata.Sha256 },
                     savestate = new { key = _attestation.Savestate.Key, sha256 = _attestation.Savestate.Sha256 }
@@ -226,13 +243,13 @@ public partial class OnlineMenuViewModel : MenuViewModelBase
             if (result != null)
             {
                 Content bundleContent = result.Content!;
-                if (!File.Exists(Globals.RemixRomPath))
+                if (!File.Exists(SelectedGame!.GamePath))
                 {
-                    StatusMessage = "Remix ROM not found.";
+                    StatusMessage = "ROM not found.";
                     return;
                 }
 
-                _attestation = await _contentService.EnsureRequiredContentAsync(bundleContent, Globals.RemixRomPath);
+                _attestation = await _contentService.EnsureRequiredContentAsync(bundleContent, SelectedGame.GamePath);
                 if (_attestation == null)
                 {
                     StatusMessage = "The server could not verify your content files.";
@@ -258,14 +275,14 @@ public partial class OnlineMenuViewModel : MenuViewModelBase
 
     private async Task<bool> EnsureContentAsync()
     {
-        if (!File.Exists(Globals.RemixRomPath))
+        if (SelectedGame == null || !File.Exists(SelectedGame.GamePath))
         {
-            StatusMessage = "Remix ROM not found.";
+            StatusMessage = "ROM not found or selected.";
             return false;
         }
 
         StatusMessage = "Checking content...";
-        _attestation = await _contentService.GetContentAttestationAsync();
+        _attestation = await _contentService.GetContentAttestationAsync(SelectedGame.GamePath);
 
         if (_attestation == null)
         {

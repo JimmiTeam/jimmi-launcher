@@ -16,7 +16,7 @@
             <Setter Property="Foreground" Value="Black"/>
             <Setter Property="Padding" Value="10,5"/>
             <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="MinWidth" Value="50"/>
+            <Setter Property="MinWidth" Value="100"/>
         </Style>
         <Style Selector="Button:pointerover /template/ ContentPresenter#PART_ContentPresenter">
             <Setter Property="Background" Value="SlateGray"/>
@@ -25,14 +25,14 @@
             <Setter Property="CornerRadius" Value="5"/>
             <Setter Property="Padding" Value="10"/>
             <Setter Property="Background" Value="Orange"/>
-            <Setter Property="BorderBrush" Value="DarkOrange"/>
+            <Setter Property="BorderBrush" Value="Chocolate"/>
             <Setter Property="MinWidth" Value="500"/>
         </Style>
         <Style Selector="Button.BackButton">
             <Setter Property="FontSize" Value="18"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="HorizontalContentAlignment" Value="Center"/>
-            <Setter Property="Background" Value="Orange"/>
+            <Setter Property="Background" Value="LightSlateGray"/>
             <Setter Property="Foreground" Value="Black"/>
             <Setter Property="Padding" Value="10,5"/>
             <Setter Property="Cursor" Value="Hand"/>
@@ -40,7 +40,24 @@
             <Setter Property="MinWidth" Value="120"/>
         </Style>
         <Style Selector="Button.BackButton:pointerover /template/ ContentPresenter#PART_ContentPresenter">
-            <Setter Property="Background" Value="Chocolate"/>
+            <Setter Property="Background" Value="SlateGray"/>
+        </Style>
+        <Style Selector="Button.StartButton">
+            <Setter Property="FontSize" Value="20"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="Background" Value="Green"/>
+            <Setter Property="Foreground" Value="Black"/>
+            <Setter Property="Padding" Value="10,5"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Margin" Value="10"/>
+            <Setter Property="MinWidth" Value="200"/>
+        </Style>
+        <Style Selector="Button.StartButton:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="DarkGreen"/>
+        </Style>
+        <Style Selector="Button.StartButton:disabled /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="Gray"/>
         </Style>
         <Style Selector="CheckBox:checked">
             <Setter Property="Foreground" Value="Orange"/>
@@ -52,6 +69,18 @@
         <Style Selector="CheckBox:unchecked /template/ ContentPresenter#PART_ContentPresenter">
             <Setter Property="Foreground" Value="Chocolate"/>
             <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+        <Style Selector="ComboBox">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="Foreground" Value="Black"/>
+            <Setter Property="MinWidth" Value="300"/>
+            <Setter Property="Margin" Value="10"/>
+        </Style>
+        <Style Selector="TextBox">
+            <Setter Property="MinWidth" Value="200"/>
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Padding" Value="5"/>
         </Style>
     </UserControl.Styles>
 
@@ -68,17 +97,22 @@
                 Command="{Binding NavigateToMainCommand}"/>
 
             <CheckBox Content="Enable Replays" 
-                IsChecked="{Binding IsReplaysEnabled}" 
-                Foreground="Orange"/>
+                IsChecked="{Binding IsReplaysEnabled}" />
+
+            <ComboBox ItemsSource="{Binding AvailableGames}" SelectedItem="{Binding SelectedGame, Mode=TwoWay}" MinWidth="300" HorizontalAlignment="Center">
+                 <ComboBox.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding GameName}" Foreground="Black" MinWidth="300"/>
+                    </DataTemplate>
+                </ComboBox.ItemTemplate>
+            </ComboBox>
         </StackPanel>
 
         <StackPanel HorizontalAlignment="Center" VerticalAlignment="Top" Spacing="20" >
             <TextBlock Text="Play Online" FontSize="24" HorizontalAlignment="Center" FontWeight="Bold" Foreground="Orange"/>
 
-            <!-- Status Message -->
             <TextBlock Text="{Binding StatusMessage}" HorizontalAlignment="Center" Foreground="White" TextWrapping="Wrap" MaxWidth="400"/>
 
-            <!-- Create Room Section -->
             <Border VerticalAlignment="Center">
                 <StackPanel Spacing="10">
                     <TextBlock Text="Host a Game" FontSize="18" HorizontalAlignment="Center" FontWeight="Bold"/>
@@ -90,19 +124,19 @@
                 </StackPanel>
             </Border>
 
-            <!-- Join Room Section -->
             <Border VerticalAlignment="Center">
                 <StackPanel Spacing="10">
                     <TextBlock Text="Join a Game" FontSize="18" HorizontalAlignment="Center" FontWeight="Bold"/>
                     <StackPanel Orientation="Horizontal" Spacing="10" HorizontalAlignment="Center">
-                        <TextBox Text="{Binding JoinCode}" Watermark="Enter Join Code" HorizontalAlignment="Center" IsEnabled="{Binding !IsBusy}" Background="White"/>
+                        <TextBox Text="{Binding JoinCode}" Watermark="Enter Join Code" HorizontalAlignment="Center" IsEnabled="{Binding !IsBusy}"/>
                         <Button Content="Connect" Command="{Binding JoinRoomCommand}" IsEnabled="{Binding !IsBusy}"/>
                     </StackPanel>
                 </StackPanel>
             </Border>
 
             <!-- Start Game Button -->
-            <Button Content="Start Game" 
+            <Button Content="*Kirby voice* LET'S DO THIS."
+                    Classes="StartButton"
                     Command="{Binding StartGameCommand}" 
                     HorizontalAlignment="Center" 
                     IsVisible="{Binding IsRoomReady}" 

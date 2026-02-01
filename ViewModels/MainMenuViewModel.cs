@@ -150,5 +150,18 @@ namespace JimmiLauncher.ViewModels
         {
             _onNavigateRequested?.Invoke("Offline");
         }
+
+        public async Task AddGameAsync(string filePath)
+        {
+            try
+            {
+                var service = new RomManagementService();
+                await service.AddRomAsync(filePath);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Failed to add rom: {ex.Message}");
+            }
+        }
     }
 }
