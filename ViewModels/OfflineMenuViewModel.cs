@@ -30,6 +30,7 @@ public partial class OfflineMenuViewModel : MenuViewModelBase
         try
         {      
             var folder = "../mupen64plus-ui-console/projects/msvc/x64/Release";
+            // var folder = "./mupen";
             var arguments = $"--configdir . --datadir {folder} --plugindir {folder} {gamePath}";
             
             // The original code prepended it.

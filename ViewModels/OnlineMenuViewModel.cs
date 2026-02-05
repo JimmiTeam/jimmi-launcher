@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Diagnostics;
 using System.IO;
 using Avalonia.Media;
+using System.IO.Pipelines;
 
 namespace JimmiLauncher.ViewModels;
 
@@ -74,7 +75,7 @@ public partial class OnlineMenuViewModel : MenuViewModelBase
     [RelayCommand]
     private void StartGame()
     {
-         if (SelectedGame == null || !File.Exists(SelectedGame.GamePath))
+        if (SelectedGame == null || !File.Exists(SelectedGame.GamePath))
         {
             StatusMessage = "ROM not found or selected.";
             return;
@@ -87,6 +88,7 @@ public partial class OnlineMenuViewModel : MenuViewModelBase
         try
         {      
             var folder = "../mupen64plus-ui-console/projects/msvc/x64/Release";
+            // folder = "./mupen
             var arguments = $"--netplay --netplayrelayhost 45.76.57.98 --netplaystatepath {Globals.NetplaySavestatePath} --configdir . --datadir {folder} --plugindir {folder} {gamePath}";
             Console.WriteLine(arguments);
             // Online Tokens
@@ -96,7 +98,7 @@ public partial class OnlineMenuViewModel : MenuViewModelBase
             }
             else if (!string.IsNullOrEmpty(Globals.OnlineClientToken))
             {
-                 arguments = $"--netplaytoken {Globals.OnlineClientToken} " + arguments;
+                arguments = $"--netplaytoken {Globals.OnlineClientToken} " + arguments;
             }
 
             if (Globals.ReplaysEnabled)
@@ -164,37 +166,50 @@ public partial class OnlineMenuViewModel : MenuViewModelBase
             var response = await _httpClient.PostAsync($"{_relayBaseUrl}/matchmaking", httpContent);
             response.EnsureSuccessStatusCode();
 
-
             var json = await response.Content.ReadAsStringAsync();
             var result = JsonSerializer.Deserialize<MatchmakeResponse>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
-            if (result != null)
+            if (result is not null)
             {
-                Globals.OnlineHostToken = result.Token?.HostToken;
+                Globals.MatchTicketId = result.TicketId;
+                while (result.State != "matched")
+                {
+                    await Task.Delay(1000);
+
+                    var poll = await _httpClient.GetAsync($"{_relayBaseUrl}/matchmaking/{Globals.MatchTicketId}");
+                    var pollBody = await poll.Content.ReadAsStringAsync();
+                    result = JsonSerializer.Deserialize<MatchmakeResponse>(pollBody, new JsonSerializerOptions { PropertyNameCaseInsensitive = true })
+                            ?? throw new Exception("Bad matchmaking poll response");
+                }
+                Globals.OnlineHostToken = null;
+                Globals.OnlineClientToken = null;
+                if (string.Equals(result.Role, "host", StringComparison.OrdinalIgnoreCase))
+                {
+                    Globals.OnlineHostToken = result.Token?.HostToken;
+                }
+                else if (string.Equals(result.Role, "client", StringComparison.OrdinalIgnoreCase))
+                {
+                    Globals.OnlineClientToken = result.Token?.ClientToken;
+                }
+                else
+                {
+                    throw new Exception($"Match response missing/unknown role: '{result.Role}'");
+                }
+
                 Globals.OnlineRoomCode = result.RoomCode;
                 var netplayMetadataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Jimmi", "NetplayContent", "content", "metadata", $"{result!.Content!.Id}.json");
                 Globals.NetplayMetadataPath = netplayMetadataPath;
                 var netplaySavestatePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Jimmi", "NetplayContent", "content", "savestates", $"{result!.Content!.Id}.st");
                 Globals.NetplaySavestatePath = netplaySavestatePath;
-                Globals.OnlineClientToken = null;
-                if (response.StatusCode == System.Net.HttpStatusCode.Accepted)
-                {
-                    Globals.MatchTicketId = result.TicketId;
-
-                }
 
                 StatusMessage = $"Friend located!! Starting game...";
-                CreatedRoomCode = result.RoomCode ?? string.Empty;
-                OnPropertyChanged(nameof(IsRoomReady));
+                StartGame();
             }
+
         }
         catch (Exception ex)
         {
             StatusMessage = $"Error finding match: {ex.Message}";
-        }
-        finally
-        {
-            IsBusy = false;
         }
     }
 

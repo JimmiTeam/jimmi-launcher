@@ -116,7 +116,7 @@
             <Border VerticalAlignment="Center">
                 <StackPanel Spacing="10">
                     <TextBlock Text="Unranked" FontSize="18" HorizontalAlignment="Center" FontWeight="Bold"/>
-                    <Button Content="Find a Match" HorizontalAlignment="Center" IsEnabled="{Binding !IsBusy}"/>
+                    <Button Content="Find a Match" Command="{Binding FindMatchCommand}" HorizontalAlignment="Center" IsEnabled="{Binding !IsBusy}"/>
                 </StackPanel>
             </Border>
 

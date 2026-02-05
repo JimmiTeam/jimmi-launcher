@@ -39,7 +39,6 @@ namespace JimmiLauncher.ViewModels
                 }
             }
         }
-        public RelayCommand<object> WatchRemixCommand { get; set; }
         public RelayCommand NavigateToReplayMenuCommand { get; set; }
         public RelayCommand NavigateToOnlineMenuCommand { get; set; }
         public RelayCommand NavigateToOfflineMenuCommand { get; set; }
@@ -67,7 +66,6 @@ namespace JimmiLauncher.ViewModels
         public MainMenuViewModel(Action<string>? onNavigateRequested = null)
         {
             _onNavigateRequested = onNavigateRequested;
-            WatchRemixCommand = new RelayCommand<object>((param) => WatchRemix(param!));
             NavigateToReplayMenuCommand = new RelayCommand(NavigateToReplayMenu);
             NavigateToOnlineMenuCommand = new RelayCommand(NavigateToOnlineMenu);
             NavigateToOfflineMenuCommand = new RelayCommand(NavigateToOfflineMenu);
@@ -87,53 +85,6 @@ namespace JimmiLauncher.ViewModels
             {
                 Debug.WriteLine($"Failed to load logo: {ex.Message}");
             }
-        }
-
-        private void WatchReplays(string gamePath, string replayPath)
-        {
-            try
-            {
-                var folder = "../mupen64plus-ui-console/projects/msvc/x64/Release";
-                var arguments = $"--configdir . --datadir {folder} --plugindir {folder} --playback {replayPath} {gamePath}";
-                var processStartInfo = new ProcessStartInfo
-                {
-                    FileName = Globals.MupenExecutablePath,
-                    Arguments = arguments,
-                    // UseShellExecute = true
-                };
-
-                Debug.WriteLine($"Starting process: {processStartInfo.FileName} {processStartInfo.Arguments}");
-
-                Process game = Process.Start(processStartInfo)!;
-                game.EnableRaisingEvents = true;
-            }
-            catch (Exception e)
-            {
-                Debug.WriteLine($"Could not start process for {gamePath} with replay {replayPath}: {e.Message}");
-            }
-        
-        }
-
-        private void WatchRemix(object param)
-        {
-            var replay = param.ToString()!;
-            if (!File.Exists(Globals.RemixRomPath))
-            {
-                return;
-            }
-            var replayPath = ReplayMethods.ExtractReplayData(replay);
-            WatchReplays(Globals.RemixRomPath, replayPath);
-        }
-
-        private void WatchVanilla(object param)
-        {
-            var replay = param.ToString()!;
-            if (!File.Exists(Globals.VanillaRomPath))
-            {
-                return;
-            }
-            var replayPath = ReplayMethods.ExtractReplayData(replay);
-            WatchReplays(Globals.VanillaRomPath, replayPath);
         }
 
         private void NavigateToReplayMenu()

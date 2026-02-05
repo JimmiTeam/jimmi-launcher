@@ -34,18 +34,16 @@ namespace JimmiLauncher
 
             _database = new LiteDatabase($"Filename={dbPath}; Connection=shared;");
 
-            // Ensure the collection exists and has an index
             var collection = _database.GetCollection<PathEntry>("Paths");
             collection.EnsureIndex(x => x.PathType);
 
             var gamesCollection = _database.GetCollection<GameRom>("GameRoms");
             gamesCollection.EnsureIndex(x => x.GamePath);
 
-            // Insert default paths if they do not exist
             var defaultPaths = new List<(string Type, string Value)>
             {
                 ("ReplaysFolder", $"{Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)}/Jimmi/Replays/"),
-                ("MupenExecutable", "E:\\Jimmi\\mupen64plus-ui-console\\projects\\msvc\\x64\\Release\\mupen64plus-ui-console.exe")
+                ("MupenExecutable", "./mupen/mupen64plus-ui-console.exe")
             };
 
             foreach (var (pathType, pathValue) in defaultPaths)
