@@ -208,12 +208,3 @@ public class Content
     [JsonPropertyName("savestate")]
     public BundleData Savestate { get; set; } = new BundleData();
 }
-
-// public class ContentAttestation
-// {
-//     public string id { get; set; } = string.Empty;
-//     public string MetadataPath { get; set; } = string.Empty;
-//     public string SavestatePath { get; set; } = string.Empty;
-//     public string MetadataSha256 { get; set; } = string.Empty;
-//     public string SavestateSha256 { get; set; } = string.Empty;
-// }

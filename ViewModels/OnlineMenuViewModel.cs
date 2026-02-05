@@ -7,6 +7,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using System.Diagnostics;
 using System.IO;
+using Avalonia.Media;
 
 namespace JimmiLauncher.ViewModels;
 
@@ -25,7 +26,6 @@ public partial class OnlineMenuViewModel : MenuViewModelBase
         GK+qsILgR05vJVta7l2KoB93AStYqC54kyYYvsZYYbs0flgHkGdUu8an2g==
         -----END PUBLIC KEY-----
     ";
-
 
     public override bool CanNavigateReplays { get; protected set; } = true;
     public override bool CanNavigateMain { get; protected set; } = true;
@@ -130,6 +130,72 @@ public partial class OnlineMenuViewModel : MenuViewModelBase
     private void NavigateToMain()
     {
         _onNavigateRequested?.Invoke("Main");
+    }
+
+    [RelayCommand]
+    private async Task FindMatch()
+    {
+        if (!await EnsureContentAsync() || _attestation == null)
+        {
+            StatusMessage = "The server could not verify your content files.";
+            return;
+        }
+        try
+        {
+            IsBusy = true;
+            StatusMessage = "Locating friend...";
+
+            var content = new
+            {
+                version = new { netplayProtocol = 1 },
+                content = new {
+                    id = _attestation.Id,
+                    compat = new {
+                        coreBuildId = _coreBuildId,
+                        romMd5 = Globals.GetRomMd5(SelectedGame!.GamePath).ToUpperInvariant(),
+                    },
+                    metadata = new { key = _attestation.Metadata.Key, sha256 = _attestation.Metadata.Sha256 },
+                    savestate = new { key = _attestation.Savestate.Key, sha256 = _attestation.Savestate.Sha256 }
+                }
+            };
+            var jsonContent = JsonSerializer.Serialize(content);
+            Console.WriteLine(jsonContent);
+            var httpContent = new StringContent(jsonContent, Encoding.UTF8, "application/json");
+            var response = await _httpClient.PostAsync($"{_relayBaseUrl}/matchmaking", httpContent);
+            response.EnsureSuccessStatusCode();
+
+
+            var json = await response.Content.ReadAsStringAsync();
+            var result = JsonSerializer.Deserialize<MatchmakeResponse>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+            if (result != null)
+            {
+                Globals.OnlineHostToken = result.Token?.HostToken;
+                Globals.OnlineRoomCode = result.RoomCode;
+                var netplayMetadataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Jimmi", "NetplayContent", "content", "metadata", $"{result!.Content!.Id}.json");
+                Globals.NetplayMetadataPath = netplayMetadataPath;
+                var netplaySavestatePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Jimmi", "NetplayContent", "content", "savestates", $"{result!.Content!.Id}.st");
+                Globals.NetplaySavestatePath = netplaySavestatePath;
+                Globals.OnlineClientToken = null;
+                if (response.StatusCode == System.Net.HttpStatusCode.Accepted)
+                {
+                    Globals.MatchTicketId = result.TicketId;
+
+                }
+
+                StatusMessage = $"Friend located!! Starting game...";
+                CreatedRoomCode = result.RoomCode ?? string.Empty;
+                OnPropertyChanged(nameof(IsRoomReady));
+            }
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = $"Error finding match: {ex.Message}";
+        }
+        finally
+        {
+            IsBusy = false;
+        }
     }
 
     [RelayCommand]
@@ -308,6 +374,18 @@ public class RoomResponse
     public RelayInfo? Relay { get; set; }
     public TokenInfo? Token { get; set; }
     public bool HasClient { get; set; }
+    public Content? Content { get; set; }
+}
+
+public class MatchmakeResponse
+{
+    public string? TicketId { get; set; }
+    public string? State { get; set; }
+    public string? Role { get; set; }
+    public string? RoomCode { get; set; }
+    public string? RoomId { get; set; }
+    public RelayInfo? Relay { get; set; }
+    public TokenInfo? Token { get; set; }
     public Content? Content { get; set; }
 }
 

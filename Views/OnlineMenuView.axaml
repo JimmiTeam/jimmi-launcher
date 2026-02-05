@@ -115,6 +115,13 @@
 
             <Border VerticalAlignment="Center">
                 <StackPanel Spacing="10">
+                    <TextBlock Text="Unranked" FontSize="18" HorizontalAlignment="Center" FontWeight="Bold"/>
+                    <Button Content="Find a Match" HorizontalAlignment="Center" IsEnabled="{Binding !IsBusy}"/>
+                </StackPanel>
+            </Border>
+
+            <Border VerticalAlignment="Center">
+                <StackPanel Spacing="10">
                     <TextBlock Text="Host a Game" FontSize="18" HorizontalAlignment="Center" FontWeight="Bold"/>
                     <Button Content="Create Room" Command="{Binding CreateRoomCommand}" HorizontalAlignment="Center" IsEnabled="{Binding !IsBusy}"/>
                     <StackPanel Orientation="Horizontal" Spacing="5" HorizontalAlignment="Center" IsVisible="{Binding CreatedRoomCode, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
@@ -134,8 +141,7 @@
                 </StackPanel>
             </Border>
 
-            <!-- Start Game Button -->
-            <Button Content="*Kirby voice* LET'S DO THIS."
+            <Button Content="Start Game"
                     Classes="StartButton"
                     Command="{Binding StartGameCommand}" 
                     HorizontalAlignment="Center" 
@@ -145,7 +151,6 @@
                     FontWeight="Bold"
                     Padding="20,10"
                     Margin="0,20,0,0"/>
-            
         </StackPanel>
     </StackPanel>
 </UserControl>

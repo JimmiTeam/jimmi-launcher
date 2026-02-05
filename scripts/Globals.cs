@@ -19,6 +19,7 @@ namespace JimmiLauncher
         public static string? OnlineRoomCode = null;
         public static string? NetplayMetadataPath = null;
         public static string? NetplaySavestatePath = null;
+        public static string? MatchTicketId = null;
 
         public static void InitializeGlobals()
         {
