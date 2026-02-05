@@ -86,7 +86,7 @@
             Spacing="20">
             <Image
                 Classes="Oscillate"
-                Source="{Binding LogoImageSource}"
+                Source="avares://JimmiLauncher/Assets/jimmi-logo2.png"
                 HorizontalAlignment="Center"
                 VerticalAlignment="Top"
                 MaxWidth="500" />

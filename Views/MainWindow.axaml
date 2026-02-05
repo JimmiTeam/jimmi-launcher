@@ -11,7 +11,7 @@
         Title="Jimmi Launcher">
 
     <Window.Background>
-        <ImageBrush Source="{Binding BackgroundImageSource}" TileMode="Tile" Stretch="None" DestinationRect="0 0 128 128"/>
+        <ImageBrush Source="avares://JimmiLauncher/Assets/background.png" TileMode="Tile" Stretch="None" DestinationRect="0 0 128 128"/>
     </Window.Background>
 
     <Design.DataContext>
