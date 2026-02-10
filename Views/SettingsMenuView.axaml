@@ -1,0 +1,43 @@
+<UserControl x:Class="JimmiLauncher.Views.SettingsMenuView"
+        xmlns:vm="using:JimmiLauncher.ViewModels"
+        xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        x:DataType="vm:SettingsMenuViewModel" >
+    
+    <UserControl.Styles>
+        <Style Selector="Button.BackButton">
+            <Setter Property="FontSize" Value="18"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="Background" Value="LightSlateGray"/>
+            <Setter Property="Foreground" Value="Black"/>
+            <Setter Property="Padding" Value="10,5"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Margin" Value="10"/>
+            <Setter Property="MinWidth" Value="120"/>
+        </Style>
+        <Style Selector="Button.BackButton:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="SlateGray"/>
+        </Style>
+    </UserControl.Styles>
+
+    <Design.DataContext>
+        <vm:SettingsMenuViewModel />
+    </Design.DataContext>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10">
+            <Button
+                Content="Back"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Center"
+                Classes="BackButton" />
+        </StackPanel>
+    </Grid>
+</UserControl>

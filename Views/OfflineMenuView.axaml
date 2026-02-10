@@ -32,15 +32,20 @@
             <Setter Property="FontSize" Value="18"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="HorizontalContentAlignment" Value="Center"/>
-            <Setter Property="Background" Value="LightSlateGray"/>
-            <Setter Property="Foreground" Value="Black"/>
+            <Setter Property="Background" Value="Black"/>
+            <Setter Property="Foreground" Value="Orange"/>
+            <Setter Property="BorderBrush" Value="Orange"/>
+            <Setter Property="BorderThickness" Value="2"/>
             <Setter Property="Padding" Value="10,5"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Margin" Value="10"/>
             <Setter Property="MinWidth" Value="120"/>
         </Style>
         <Style Selector="Button.BackButton:pointerover /template/ ContentPresenter#PART_ContentPresenter">
-            <Setter Property="Background" Value="SlateGray"/>
+            <Setter Property="Foreground" Value="Chocolate"/>
+            <Setter Property="Background" Value="Black"/>
+            <Setter Property="BorderBrush" Value="Chocolate"/>
+            <Setter Property="BorderThickness" Value="2"/>
         </Style>
         <Style Selector="Button.StartButton">
             <Setter Property="FontSize" Value="20"/>
@@ -81,7 +86,7 @@
         <StackPanel HorizontalAlignment="Left" VerticalAlignment="Top" Orientation="Horizontal">
             <Button
                 Classes="BackButton"
-                Content="Back"
+                Content="◀◀ Back"
                 Command="{Binding NavigateToMainCommand}"/>
 
             <CheckBox Content="Enable Replays" 

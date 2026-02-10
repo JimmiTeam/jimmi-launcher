@@ -21,7 +21,14 @@ public partial class MainMenuView : UserControl
         var files = await topLevel.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
         {
             Title = "Select ROM File",
-            AllowMultiple = false
+            AllowMultiple = false,
+            FileTypeFilter =
+            [
+                new FilePickerFileType("Supported ROMs")
+                {
+                    Patterns = ["*.z64", "*.n64", "*.v64"]
+                }
+            ]
         });
 
         if (files.Count >= 1)

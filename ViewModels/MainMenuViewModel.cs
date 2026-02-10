@@ -42,6 +42,7 @@ namespace JimmiLauncher.ViewModels
         public RelayCommand NavigateToReplayMenuCommand { get; set; }
         public RelayCommand NavigateToOnlineMenuCommand { get; set; }
         public RelayCommand NavigateToOfflineMenuCommand { get; set; }
+        public RelayCommand NavigateToSettingsMenuCommand { get; set; }
         private MenuViewModelBase? _currentMenu;
         public MenuViewModelBase? CurrentMenu
         {
@@ -69,6 +70,7 @@ namespace JimmiLauncher.ViewModels
             NavigateToReplayMenuCommand = new RelayCommand(NavigateToReplayMenu);
             NavigateToOnlineMenuCommand = new RelayCommand(NavigateToOnlineMenu);
             NavigateToOfflineMenuCommand = new RelayCommand(NavigateToOfflineMenu);
+            NavigateToSettingsMenuCommand = new RelayCommand(NavigateToSettingsMenu);
             // Load bitmap asynchronously to avoid blocking UI
             _ = LoadLogoAsync();
         }
@@ -100,6 +102,11 @@ namespace JimmiLauncher.ViewModels
         private void NavigateToOfflineMenu()
         {
             _onNavigateRequested?.Invoke("Offline");
+        }
+
+        private void NavigateToSettingsMenu()
+        {
+            _onNavigateRequested?.Invoke("Settings");
         }
 
         public async Task AddGameAsync(string filePath)

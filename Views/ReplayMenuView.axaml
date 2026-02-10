@@ -25,15 +25,20 @@
             <Setter Property="FontSize" Value="18"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="HorizontalContentAlignment" Value="Center"/>
-            <Setter Property="Background" Value="Orange"/>
-            <Setter Property="Foreground" Value="Black"/>
+            <Setter Property="Background" Value="Black"/>
+            <Setter Property="Foreground" Value="Orange"/>
             <Setter Property="Padding" Value="10,5"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Margin" Value="10"/>
             <Setter Property="MinWidth" Value="120"/>
+            <Setter Property="BorderBrush" Value="Orange"/>
+            <Setter Property="BorderThickness" Value="2"/>
         </Style>
         <Style Selector="Button.BackButton:pointerover /template/ ContentPresenter#PART_ContentPresenter">
-            <Setter Property="Background" Value="Chocolate"/>
+            <Setter Property="Foreground" Value="Chocolate"/>
+            <Setter Property="Background" Value="Black"/>
+            <Setter Property="BorderBrush" Value="Chocolate"/>
+            <Setter Property="BorderThickness" Value="2"/>
         </Style>
         <Style Selector="DataGridColumnHeader">
             <Setter Property="Background" Value="Orange"/>
@@ -63,7 +68,7 @@
             <Button 
                 Grid.Column="0"
                 Classes="BackButton"
-                Content="Back"
+                Content="◀◀ Back"
                 Command="{Binding NavigateToMainCommand}"/>
             <TextBlock 
                 Grid.Column="1"

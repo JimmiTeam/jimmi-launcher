@@ -23,13 +23,10 @@ namespace JimmiLauncher
             if (!File.Exists(romPath))
                 throw new FileNotFoundException("ROM file not found", romPath);
 
-            // 1. Fetch Manifest
             var manifest = await GetManifestAsync();
 
-            // 2. Calculate ROM MD5
             var romMd5 = Globals.GetRomMd5(romPath).ToUpper();
 
-            // 3. Find in Manifest
             var bundle = manifest.Bundles.FirstOrDefault(b => b.Compat.RomMd5 == romMd5);
 
             if (bundle == null)
@@ -37,10 +34,8 @@ namespace JimmiLauncher
                 throw new Exception("This ROM is not recognized by the manifest. Please ensure you have a supported ROM version.");
             }
 
-            // 4. Get Metadata
             var metadataPath = await EnsureMetadataAsync(bundle);
 
-            // 5. Read Metadata to get Game Name and verify further
             var metadataContent = await File.ReadAllTextAsync(metadataPath);
             using var doc = JsonDocument.Parse(metadataContent);
             var root = doc.RootElement;

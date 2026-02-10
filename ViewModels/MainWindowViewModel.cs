@@ -39,6 +39,9 @@ namespace JimmiLauncher.ViewModels
                 case "Offline":
                     CurrentMenu = new OfflineMenuViewModel(NavigateToMenu);
                     break;
+                case "Settings":
+                    CurrentMenu = new SettingsMenuViewModel(NavigateToMenu);
+                    break;
                 default:
                     throw new ArgumentException($"Unknown menu: {menuName}");
             }
