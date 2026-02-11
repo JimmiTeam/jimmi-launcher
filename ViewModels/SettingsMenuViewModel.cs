@@ -1,3 +1,4 @@
+using CommunityToolkit.Mvvm.Input;
 using System;
 
 namespace JimmiLauncher.ViewModels
@@ -11,9 +12,14 @@ namespace JimmiLauncher.ViewModels
 
         private Action<string>? _onNavigateRequested;
 
+        public RelayCommand NavigateToMainCommand { get; }
+        public RelayCommand NavigateToControllerSetupCommand { get; }
+
         public SettingsMenuViewModel(Action<string>? onNavigateRequested = null)
         {
             _onNavigateRequested = onNavigateRequested;
+            NavigateToMainCommand = new RelayCommand(() => _onNavigateRequested?.Invoke("Main"));
+            NavigateToControllerSetupCommand = new RelayCommand(() => _onNavigateRequested?.Invoke("ControllerSetup"));
         }
     }
 }

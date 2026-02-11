@@ -42,6 +42,9 @@ namespace JimmiLauncher.ViewModels
                 case "Settings":
                     CurrentMenu = new SettingsMenuViewModel(NavigateToMenu);
                     break;
+                case "ControllerSetup":
+                    CurrentMenu = new ControllerSetupViewModel(NavigateToMenu);
+                    break;
                 default:
                     throw new ArgumentException($"Unknown menu: {menuName}");
             }

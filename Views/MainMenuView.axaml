@@ -76,7 +76,8 @@
                 Content="Settings"
                 HorizontalAlignment="Left"
                 VerticalAlignment="Center"
-                Classes="SettingsButton" />
+                Classes="SettingsButton"
+                Command="{Binding NavigateToSettingsMenuCommand}" />
         </StackPanel>
 
         <StackPanel

@@ -3,9 +3,9 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using Avalonia.Controls.Primitives;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Formats.Jpeg;
-using SixLabors.ImageSharp.Processing;
+// using SixLabors.ImageSharp;
+// using SixLabors.ImageSharp.Formats.Jpeg;
+// using SixLabors.ImageSharp.Processing;
 
 namespace JimmiLauncher
 {
@@ -35,36 +35,36 @@ namespace JimmiLauncher
                 var folderPath = $"{ReplaysFolder}/{directory}";
                 using (ZipArchive zip = ZipFile.Open($"{folderPath}.jrpl", ZipArchiveMode.Create))
                 {
-                    try
-                    {
-                        var image = Image.Load($"{folderPath}/smash_remix-000.png");
-                        var encoder = new JpegEncoder
-                        {
-                            Quality = 30
-                        };
-                        image.Mutate(x => x.Resize(320, 240));
-                        image.Save($"{folderPath}/thumbnail.jpg", encoder);
-                        File.Delete($"{folderPath}/smash_remix-000.png");
+                    // try
+                    // {
+                    //     var image = Image.Load($"{folderPath}/smash_remix-000.png");
+                    //     var encoder = new JpegEncoder
+                    //     {
+                    //         Quality = 30
+                    //     };
+                    //     image.Mutate(x => x.Resize(320, 240));
+                    //     image.Save($"{folderPath}/thumbnail.jpg", encoder);
+                    //     File.Delete($"{folderPath}/smash_remix-000.png");
 
-                        var thumbnailPath = $"{folderPath}/thumbnail.jpg";
-                        var inputPath = $"{folderPath}/inputs.bin";
-                        var statePath = $"{folderPath}/state.st";
-                        var gameType = File.Exists($"{folderPath}/remix") ? "remix" : "vanilla";
-                        var gameTypePath = $"{folderPath}/{gameType}";
-                        zip.CreateEntryFromFile(thumbnailPath, "thumbnail.jpg", CompressionLevel.Fastest);
-                        zip.CreateEntryFromFile(inputPath, "inputs.bin", CompressionLevel.SmallestSize);
-                        zip.CreateEntryFromFile(statePath, "state.st", CompressionLevel.SmallestSize);
-                        zip.CreateEntryFromFile(gameTypePath, gameType, CompressionLevel.Optimal);
-                        File.Delete(thumbnailPath);
-                        File.Delete(inputPath);
-                        File.Delete(statePath);
-                        File.Delete(gameTypePath);
-                        Directory.Delete(folderPath);
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine($"Error compressing replay archive: {ex.Message}");
-                    }
+                    //     var thumbnailPath = $"{folderPath}/thumbnail.jpg";
+                    //     var inputPath = $"{folderPath}/inputs.bin";
+                    //     var statePath = $"{folderPath}/state.st";
+                    //     var gameType = File.Exists($"{folderPath}/remix") ? "remix" : "vanilla";
+                    //     var gameTypePath = $"{folderPath}/{gameType}";
+                    //     zip.CreateEntryFromFile(thumbnailPath, "thumbnail.jpg", CompressionLevel.Fastest);
+                    //     zip.CreateEntryFromFile(inputPath, "inputs.bin", CompressionLevel.SmallestSize);
+                    //     zip.CreateEntryFromFile(statePath, "state.st", CompressionLevel.SmallestSize);
+                    //     zip.CreateEntryFromFile(gameTypePath, gameType, CompressionLevel.Optimal);
+                    //     File.Delete(thumbnailPath);
+                    //     File.Delete(inputPath);
+                    //     File.Delete(statePath);
+                    //     File.Delete(gameTypePath);
+                    //     Directory.Delete(folderPath);
+                    // }
+                    // catch (Exception ex)
+                    // {
+                    //     Console.WriteLine($"Error compressing replay archive: {ex.Message}");
+                    // }
                 }
             }
         }
