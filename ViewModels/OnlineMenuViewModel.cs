@@ -88,7 +88,7 @@ public partial class OnlineMenuViewModel : MenuViewModelBase
         try
         {      
             var folder = "../mupen64plus-ui-console/projects/msvc/x64/Release";
-            // folder = "./mupen
+            // folder = "./mupen";
             var arguments = $"--netplay --netplayrelayhost 45.76.57.98 --netplaystatepath {Globals.NetplaySavestatePath} --configdir . --datadir {folder} --plugindir {folder} {gamePath}";
             Console.WriteLine(arguments);
             // Online Tokens
