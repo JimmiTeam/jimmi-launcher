@@ -1,3 +1,4 @@
+using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System;
@@ -11,9 +12,6 @@ using System.Text.RegularExpressions;
 
 namespace JimmiLauncher.ViewModels;
 
-/// <summary>
-/// Represents a single N64 button/axis mapped to an SDL input string (e.g. "button(0)", "axis(2+)").
-/// </summary>
 public partial class ControllerBinding : ObservableObject
 {
     public string N64InputName { get; }
@@ -47,9 +45,8 @@ public class ControllerPreset
     public override string ToString() => Name;
 }
 
-public partial class ControllerSetupViewModel : MenuViewModelBase
+public partial class ControllerSetupViewModel : MenuViewModelBase, IDisposable
 {
-    // ── Navigation ──────────────────────────────────────────────────────
     public override bool CanNavigateReplays { get => false; protected set => throw new InvalidOperationException(); }
     public override bool CanNavigateMain { get => true; protected set => throw new InvalidOperationException(); }
     public override bool CanNavigateOnline { get => false; protected set => throw new InvalidOperationException(); }
@@ -57,10 +54,8 @@ public partial class ControllerSetupViewModel : MenuViewModelBase
 
     private readonly Action<string>? _onNavigateRequested;
 
-    // ── Config path ─────────────────────────────────────────────────────
     private static readonly string CfgPath = Path.Combine(Directory.GetCurrentDirectory(), "mupen64plus.cfg");
 
-    // ── Port selection ──────────────────────────────────────────────────
     public ObservableCollection<string> ControllerPorts { get; } = new()
     {
         "Controller 1",
@@ -78,7 +73,7 @@ public partial class ControllerSetupViewModel : MenuViewModelBase
         LoadPortBindings();
     }
 
-    private string CurrentSectionName => $"Input-SDL-Control{_selectedPortIndex + 1}";
+    private string CurrentSectionName => $"Input-SDL-Control{SelectedPortIndex + 1}";
 
     [ObservableProperty]
     private bool _isPluggedIn = true;
@@ -100,53 +95,78 @@ public partial class ControllerSetupViewModel : MenuViewModelBase
     [ObservableProperty]
     private int _selectedExpansionPakIndex;
 
-    /// <summary>Maps UI index to the cfg plugin integer (1, 2, 4, 5).</summary>
     private static readonly int[] ExpansionPakValues = { 1, 2, 4, 5 };
 
-    // ── Device info ─────────────────────────────────────────────────────
     [ObservableProperty]
     private string _deviceName = string.Empty;
 
     [ObservableProperty]
     private int _deviceIndex = -1;
 
-    // ── Current bindings ────────────────────────────────────────────────
+    public ObservableCollection<string> DetectedDevices { get; } = new();
+
+    [ObservableProperty]
+    private int _selectedDetectedDeviceIndex = -1;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(LeftStickCanvasX))]
+    private double _leftStickX = 0.5;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(LeftStickCanvasY))]
+    private double _leftStickY = 0.5;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(RightStickCanvasX))]
+    private double _rightStickX = 0.5;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(RightStickCanvasY))]
+    private double _rightStickY = 0.5;
+
+    private const double StickCanvasSize = 120.0;
+    private const double DotRadius = 6.0;
+
+    public double LeftStickCanvasX => LeftStickX * (StickCanvasSize - DotRadius * 2);
+    public double LeftStickCanvasY => LeftStickY * (StickCanvasSize - DotRadius * 2);
+    public double RightStickCanvasX => RightStickX * (StickCanvasSize - DotRadius * 2);
+    public double RightStickCanvasY => RightStickY * (StickCanvasSize - DotRadius * 2);
+
+    private GamepadService? _gamepadService;
+    private ControllerBinding? _listeningBinding;
+
     public ObservableCollection<ControllerBinding> Bindings { get; } = new();
 
-    /// <summary>The ordered list of N64 input names as they appear in the cfg.</summary>
     private static readonly (string Key, string Label)[] N64Inputs =
     {
-        ("DPad R",      "D-Pad Right"),
-        ("DPad L",      "D-Pad Left"),
-        ("DPad D",      "D-Pad Down"),
-        ("DPad U",      "D-Pad Up"),
-        ("Start",       "Start"),
-        ("Z Trig",      "Z"),
-        ("B Button",    "B"),
-        ("A Button",    "A"),
-        ("C Button R",  "C-Right"),
-        ("C Button L",  "C-Left"),
-        ("C Button D",  "C-Down"),
-        ("C Button U",  "C-Up"),
-        ("R Trig",      "R"),
-        ("L Trig",      "L"),
-        ("Mempak switch",  "Mempak Switch"),
+        ("DPad R", "D-Pad Right"),
+        ("DPad L", "D-Pad Left"),
+        ("DPad D","D-Pad Down"),
+        ("DPad U", "D-Pad Up"),
+        ("Start", "Start"),
+        ("Z Trig", "Z"),
+        ("B Button", "B"),
+        ("A Button", "A"),
+        ("C Button R", "C-Right"),
+        ("C Button L", "C-Left"),
+        ("C Button D", "C-Down"),
+        ("C Button U", "C-Up"),
+        ("R Trig", "R"),
+        ("L Trig", "L"),
+        ("Mempak switch", "Mempak Switch"),
         ("Rumblepak switch","Rumblepak Switch"),
-        ("X Axis",      "Analog X"),
-        ("Y Axis",      "Analog Y"),
+        ("X Axis", "Analog X"),
+        ("Y Axis", "Analog Y"),
     };
 
-    // ── Presets ──────────────────────────────────────────────────────────
     public ObservableCollection<ControllerPreset> Presets { get; } = new();
 
     [ObservableProperty]
     private ControllerPreset? _selectedPreset;
 
-    // ── Status ──────────────────────────────────────────────────────────
     [ObservableProperty]
     private string _statusMessage = string.Empty;
 
-    // ── Ctor ────────────────────────────────────────────────────────────
     public ControllerSetupViewModel(Action<string>? onNavigateRequested = null)
     {
         _onNavigateRequested = onNavigateRequested;
@@ -154,9 +174,9 @@ public partial class ControllerSetupViewModel : MenuViewModelBase
         InitializePresets();
         InitializeBindings();
         LoadPortBindings();
+        InitializeGamepadService();
     }
 
-    // ── Initialization helpers ──────────────────────────────────────────
 
     private void InitializeBindings()
     {
@@ -169,87 +189,77 @@ public partial class ControllerSetupViewModel : MenuViewModelBase
 
     private void InitializePresets()
     {
-        // Default Xbox / XInput preset (matches the typical SDL mapping for Xbox controllers)
         Presets.Add(new ControllerPreset("Xbox / XInput Default", new Dictionary<string, string>
         {
-            ["DPad R"]      = "hat(0 Right)",
-            ["DPad L"]      = "hat(0 Left)",
-            ["DPad D"]      = "hat(0 Down)",
-            ["DPad U"]      = "hat(0 Up)",
-            ["Start"]       = "button(7)",
-            ["Z Trig"]      = "button(6) axis(4+)",
-            ["B Button"]    = "button(2)",
-            ["A Button"]    = "button(0)",
-            ["C Button R"]  = "axis(2+)",
-            ["C Button L"]  = "axis(2-) button(3)",
-            ["C Button D"]  = "axis(3+) button(1)",
-            ["C Button U"]  = "axis(3-)",
-            ["R Trig"]      = "button(5) axis(5+)",
-            ["L Trig"]      = "button(4)",
+            ["DPad R"] = "hat(0 Right)",
+            ["DPad L"] = "hat(0 Left)",
+            ["DPad D"] = "hat(0 Down)",
+            ["DPad U"] = "hat(0 Up)",
+            ["Start"] = "button(7)",
+            ["Z Trig"]  = "button(6) axis(4+)",
+            ["B Button"] = "button(2)",
+            ["A Button"] = "button(0)",
+            ["C Button R"] = "axis(2+)",
+            ["C Button L"] = "axis(2-) button(3)",
+            ["C Button D"] = "axis(3+) button(1)",
+            ["C Button U"] = "axis(3-)",
+            ["R Trig"] = "button(5) axis(5+)",
+            ["L Trig"] = "button(4)",
             ["Mempak switch"]  = "",
             ["Rumblepak switch"] = "",
-            ["X Axis"]      = "axis(0-,0+)",
-            ["Y Axis"]      = "axis(1-,1+)",
+            ["X Axis"] = "axis(0-,0+)",
+            ["Y Axis"] = "axis(1-,1+)",
         }));
 
-        // Alt layout: right stick for C-buttons, triggers for Z/R
         Presets.Add(new ControllerPreset("Xbox Alt (C on Right Stick)", new Dictionary<string, string>
         {
-            ["DPad R"]      = "hat(0 Right)",
-            ["DPad L"]      = "hat(0 Left)",
-            ["DPad D"]      = "hat(0 Down)",
-            ["DPad U"]      = "hat(0 Up)",
-            ["Start"]       = "button(7)",
-            ["Z Trig"]      = "axis(4+)",
-            ["B Button"]    = "button(2)",
-            ["A Button"]    = "button(0)",
-            ["C Button R"]  = "axis(2+)",
-            ["C Button L"]  = "axis(2-)",
-            ["C Button D"]  = "axis(3+)",
-            ["C Button U"]  = "axis(3-)",
-            ["R Trig"]      = "button(5) axis(5+)",
-            ["L Trig"]      = "button(4)",
-            ["Mempak switch"]  = "",
+            ["DPad R"] = "hat(0 Right)",
+            ["DPad L"] = "hat(0 Left)",
+            ["DPad D"] = "hat(0 Down)",
+            ["DPad U"] = "hat(0 Up)",
+            ["Start"] = "button(7)",
+            ["Z Trig"] = "axis(4+)",
+            ["B Button"] = "button(2)",
+            ["A Button"] = "button(0)",
+            ["C Button R"] = "axis(2+)",
+            ["C Button L"] = "axis(2-)",
+            ["C Button D"] = "axis(3+)",
+            ["C Button U"] = "axis(3-)",
+            ["R Trig"] = "button(5) axis(5+)",
+            ["L Trig"] = "button(4)",
+            ["Mempak switch"] = "",
             ["Rumblepak switch"] = "",
-            ["X Axis"]      = "axis(0-,0+)",
-            ["Y Axis"]      = "axis(1-,1+)",
+            ["X Axis"] = "axis(0-,0+)",
+            ["Y Axis"] = "axis(1-,1+)",
         }));
 
-        // Keyboard-style: face buttons for C
         Presets.Add(new ControllerPreset("Xbox Face Buttons as C", new Dictionary<string, string>
         {
-            ["DPad R"]      = "hat(0 Right)",
-            ["DPad L"]      = "hat(0 Left)",
-            ["DPad D"]      = "hat(0 Down)",
-            ["DPad U"]      = "hat(0 Up)",
-            ["Start"]       = "button(7)",
-            ["Z Trig"]      = "axis(4+)",
-            ["B Button"]    = "button(6)",
-            ["A Button"]    = "button(0)",
-            ["C Button R"]  = "button(1)",
-            ["C Button L"]  = "button(2)",
-            ["C Button D"]  = "button(0)",
-            ["C Button U"]  = "button(3)",
-            ["R Trig"]      = "button(5) axis(5+)",
-            ["L Trig"]      = "button(4)",
-            ["Mempak switch"]  = "",
+            ["DPad R"] = "hat(0 Right)",
+            ["DPad L"] = "hat(0 Left)",
+            ["DPad D"] = "hat(0 Down)",
+            ["DPad U"] = "hat(0 Up)",
+            ["Start"] = "button(7)",
+            ["Z Trig"] = "axis(4+)",
+            ["B Button"] = "button(6)",
+            ["A Button"] = "button(0)",
+            ["C Button R"] = "button(1)",
+            ["C Button L"] = "button(2)",
+            ["C Button D"] = "button(0)",
+            ["C Button U"] = "button(3)",
+            ["R Trig"] = "button(5) axis(5+)",
+            ["L Trig"] = "button(4)",
+            ["Mempak switch"] = "",
             ["Rumblepak switch"] = "",
-            ["X Axis"]      = "axis(0-,0+)",
-            ["Y Axis"]      = "axis(1-,1+)",
+            ["X Axis"] = "axis(0-,0+)",
+            ["Y Axis"] = "axis(1-,1+)",
         }));
 
-        // Clear all bindings
         Presets.Add(new ControllerPreset("Clear All", new Dictionary<string, string>(
             N64Inputs.Select(i => new KeyValuePair<string, string>(i.Key, ""))
         )));
     }
 
-    // ── CFG Parsing ─────────────────────────────────────────────────────
-
-    /// <summary>
-    /// Reads all lines of the cfg, extracts key-value pairs from the
-    /// currently selected Input-SDL-Control section, and populates bindings.
-    /// </summary>
     private void LoadPortBindings()
     {
         if (!File.Exists(CfgPath))
@@ -263,15 +273,12 @@ public partial class ControllerSetupViewModel : MenuViewModelBase
             var lines = File.ReadAllLines(CfgPath);
             var sectionData = ParseSection(lines, CurrentSectionName);
 
-            // Plug state
             IsPluggedIn = GetBool(sectionData, "plugged", true);
 
-            // Device info
             DeviceName = GetString(sectionData, "name", "");
             if (int.TryParse(GetString(sectionData, "device", "-1"), out int dev))
                 DeviceIndex = dev;
 
-            // Deadzone / peak
             var dzParts = GetString(sectionData, "AnalogDeadzone", "4096,4096").Trim('"').Split(',');
             if (dzParts.Length > 0 && int.TryParse(dzParts[0], out int dz))
                 AnalogDeadzone = dz;
@@ -280,14 +287,12 @@ public partial class ControllerSetupViewModel : MenuViewModelBase
             if (pkParts.Length > 0 && int.TryParse(pkParts[0], out int pk))
                 AnalogPeak = pk;
 
-            // Expansion pak
             if (int.TryParse(GetString(sectionData, "plugin", "2"), out int plugin))
             {
                 int idx = Array.IndexOf(ExpansionPakValues, plugin);
-                SelectedExpansionPakIndex = idx >= 0 ? idx : 1; // default Mem Pak
+                SelectedExpansionPakIndex = idx >= 0 ? idx : 1;
             }
 
-            // Button/axis bindings
             foreach (var binding in Bindings)
             {
                 binding.BoundValue = GetString(sectionData, binding.N64InputName, "");
@@ -302,16 +307,12 @@ public partial class ControllerSetupViewModel : MenuViewModelBase
         }
     }
 
-    /// <summary>
-    /// Writes the current bindings and settings back into the cfg file,
-    /// replacing only the relevant section's values.
-    /// </summary>
     [RelayCommand]
     private void SaveBindings()
     {
         if (!File.Exists(CfgPath))
         {
-            StatusMessage = "mupen64plus.cfg not found — cannot save.";
+            StatusMessage = "mupen64plus.cfg not found.";
             return;
         }
 
@@ -325,29 +326,24 @@ public partial class ControllerSetupViewModel : MenuViewModelBase
                 return;
             }
 
-            // Build a lookup of new values to write
             var newValues = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
-            // Controller settings
             newValues["plugged"] = IsPluggedIn ? "True" : "False";
             newValues["device"] = DeviceIndex.ToString();
             newValues["name"] = $"\"{DeviceName}\"";
             newValues["plugin"] = ExpansionPakValues[SelectedExpansionPakIndex].ToString();
             newValues["AnalogDeadzone"] = $"\"{AnalogDeadzone},{AnalogDeadzone}\"";
             newValues["AnalogPeak"] = $"\"{AnalogPeak},{AnalogPeak}\"";
-            newValues["mode"] = "2"; // fully automatic
+            newValues["mode"] = "2";
 
-            // Button/axis bindings
             foreach (var binding in Bindings)
             {
                 newValues[binding.N64InputName] = $"\"{binding.BoundValue}\"";
             }
 
-            // Replace values in-place within the section
             for (int i = start + 1; i <= end && i < lines.Count; i++)
             {
                 var line = lines[i];
-                // Skip comments and blank lines
                 if (string.IsNullOrWhiteSpace(line) || line.TrimStart().StartsWith('#'))
                     continue;
 
@@ -358,12 +354,12 @@ public partial class ControllerSetupViewModel : MenuViewModelBase
                 if (newValues.TryGetValue(key, out var newVal))
                 {
                     lines[i] = $"{key} = {newVal}";
-                    newValues.Remove(key); // consumed
+                    newValues.Remove(key);
                 }
             }
 
             File.WriteAllLines(CfgPath, lines);
-            StatusMessage = $"Saved {CurrentSectionName} successfully.";
+            StatusMessage = $"Save successful.";
         }
         catch (Exception ex)
         {
@@ -372,7 +368,6 @@ public partial class ControllerSetupViewModel : MenuViewModelBase
         }
     }
 
-    // ── Preset application ──────────────────────────────────────────────
 
     [RelayCommand]
     private void ApplyPreset()
@@ -390,7 +385,6 @@ public partial class ControllerSetupViewModel : MenuViewModelBase
         StatusMessage = $"Applied preset: {SelectedPreset.Name}";
     }
 
-    // ── Per-button clear ────────────────────────────────────────────────
 
     [RelayCommand]
     private void ClearBinding(ControllerBinding? binding)
@@ -399,26 +393,23 @@ public partial class ControllerSetupViewModel : MenuViewModelBase
         binding.BoundValue = string.Empty;
     }
 
-    // ── Reset port to defaults ──────────────────────────────────────────
 
     [RelayCommand]
     private void ResetToDefaults()
     {
-        // Apply the first preset (Xbox default) and then save
         if (Presets.Count > 0)
         {
             SelectedPreset = Presets[0];
             ApplyPreset();
-            IsPluggedIn = _selectedPortIndex == 0; // only port 1 plugged by default
-            DeviceIndex = _selectedPortIndex == 0 ? 0 : -1;
+            IsPluggedIn = SelectedPortIndex == 0;
+            DeviceIndex = SelectedPortIndex == 0 ? 0 : -1;
             AnalogDeadzone = 4096;
             AnalogPeak = 32768;
-            SelectedExpansionPakIndex = 1; // Mem Pak
+            SelectedExpansionPakIndex = 1;
             StatusMessage = "Reset to XInput defaults (unsaved).";
         }
     }
 
-    // ── Reload from disk ────────────────────────────────────────────────
 
     [RelayCommand]
     private void ReloadBindings()
@@ -426,25 +417,138 @@ public partial class ControllerSetupViewModel : MenuViewModelBase
         LoadPortBindings();
     }
 
-    // ── Navigation ──────────────────────────────────────────────────────
+    private void InitializeGamepadService()
+    {
+        try
+        {
+            _gamepadService = new GamepadService();
+            var mupenFullPath = Path.GetFullPath(Globals.MupenExecutablePath);
+            if (File.Exists(mupenFullPath))
+            {
+                _gamepadService.NativeSdlSearchPath = Path.GetDirectoryName(mupenFullPath);
+            }
+
+            _gamepadService.AxisValuesUpdated += OnAxisValuesUpdated;
+            _gamepadService.InputDetected += OnInputDetected;
+            _gamepadService.DevicesChanged += OnDevicesChanged;
+            _gamepadService.Start();
+
+            Dispatcher.UIThread.InvokeAsync(RefreshDevices, DispatcherPriority.Background);
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"[ControllerSetup] Failed to start GamepadService: {ex.Message}");
+            StatusMessage = "Gamepad service unavailable.";
+        }
+    }
+
+    private void OnAxisValuesUpdated(short lx, short ly, short rx, short ry)
+    {
+        Dispatcher.UIThread.Post(() =>
+        {
+            LeftStickX = (lx + 32768.0) / 65535.0;
+            LeftStickY = (ly + 32768.0) / 65535.0;
+            RightStickX = (rx + 32768.0) / 65535.0;
+            RightStickY = (ry + 32768.0) / 65535.0;
+        });
+    }
+
+    private void OnInputDetected(DetectedInput input)
+    {
+        Dispatcher.UIThread.Post(() =>
+        {
+            if (_listeningBinding != null)
+            {
+                _listeningBinding.BoundValue = input.SdlString;
+                _listeningBinding.IsListening = false;
+                _listeningBinding = null;
+
+                if (_gamepadService != null)
+                    _gamepadService.IsListening = false;
+
+                StatusMessage = $"Bound: {input.DisplayLabel}";
+            }
+        });
+    }
+
+    private void OnDevicesChanged()
+    {
+        Dispatcher.UIThread.Post(RefreshDevices);
+    }
+
+    [RelayCommand]
+    private void ListenForInput(ControllerBinding? binding)
+    {
+        if (binding == null || _gamepadService == null) return;
+
+        if (_listeningBinding != null)
+            _listeningBinding.IsListening = false;
+
+        _listeningBinding = binding;
+        binding.IsListening = true;
+        _gamepadService.IsListening = true;
+        StatusMessage = $"Press a button/axis for: {binding.DisplayLabel}";
+    }
+
+    [RelayCommand]
+    private void CancelListen()
+    {
+        if (_listeningBinding != null)
+        {
+            _listeningBinding.IsListening = false;
+            _listeningBinding = null;
+        }
+        if (_gamepadService != null)
+            _gamepadService.IsListening = false;
+        StatusMessage = string.Empty;
+    }
+
+    [RelayCommand]
+    private void RefreshDevices()
+    {
+        DetectedDevices.Clear();
+        try
+        {
+            var devices = GamepadService.GetConnectedDevices();
+            foreach (var (index, name) in devices)
+            {
+                DetectedDevices.Add($"{index}: {name}");
+            }
+            if (DetectedDevices.Count > 0)
+                SelectedDetectedDeviceIndex = 0;
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"[ControllerSetup] RefreshDevices error: {ex.Message}");
+        }
+    }
 
     [RelayCommand]
     private void NavigateToMain()
     {
+        Dispose();
         _onNavigateRequested?.Invoke("Main");
     }
 
     [RelayCommand]
     private void NavigateToSettings()
     {
+        Dispose();
         _onNavigateRequested?.Invoke("Settings");
     }
 
-    // ── CFG helpers ─────────────────────────────────────────────────────
+    public void Dispose()
+    {
+        if (_gamepadService != null)
+        {
+            _gamepadService.AxisValuesUpdated -= OnAxisValuesUpdated;
+            _gamepadService.InputDetected -= OnInputDetected;
+            _gamepadService.DevicesChanged -= OnDevicesChanged;
+            _gamepadService.Dispose();
+            _gamepadService = null;
+        }
+    }
 
-    /// <summary>
-    /// Parses all key = value pairs from the named INI-style section.
-    /// </summary>
     private static Dictionary<string, string> ParseSection(string[] lines, string sectionName)
     {
         var result = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
@@ -464,7 +568,7 @@ public partial class ControllerSetupViewModel : MenuViewModelBase
                 }
                 else if (inSection)
                 {
-                    break; // left the section
+                    break;
                 }
             }
 
@@ -482,9 +586,6 @@ public partial class ControllerSetupViewModel : MenuViewModelBase
         return result;
     }
 
-    /// <summary>
-    /// Returns the line range (inclusive) of a section: header line and last data line before the next section.
-    /// </summary>
     private static (int Start, int End) FindSectionRange(List<string> lines, string sectionName)
     {
         int start = -1;
@@ -498,7 +599,6 @@ public partial class ControllerSetupViewModel : MenuViewModelBase
                 var name = trimmed[1..^1];
                 if (start >= 0)
                 {
-                    // We've found the next section — end is the previous line
                     end = i - 1;
                     break;
                 }
@@ -510,7 +610,7 @@ public partial class ControllerSetupViewModel : MenuViewModelBase
         }
 
         if (start >= 0 && end < 0)
-            end = lines.Count - 1; // section runs to EOF
+            end = lines.Count - 1;
 
         return (start, end);
     }

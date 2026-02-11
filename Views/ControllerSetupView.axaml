@@ -7,7 +7,6 @@
              x:DataType="vm:ControllerSetupViewModel">
 
     <UserControl.Styles>
-        <!-- Back button — matches OfflineMenuView style -->
         <Style Selector="Button.BackButton">
             <Setter Property="FontSize" Value="18"/>
             <Setter Property="FontWeight" Value="Bold"/>
@@ -28,7 +27,6 @@
             <Setter Property="BorderThickness" Value="2"/>
         </Style>
 
-        <!-- Action buttons (Save, Apply, Reset, Reload) -->
         <Style Selector="Button.ActionButton">
             <Setter Property="FontSize" Value="14"/>
             <Setter Property="FontWeight" Value="Bold"/>
@@ -44,7 +42,6 @@
             <Setter Property="Background" Value="Chocolate"/>
         </Style>
 
-        <!-- Save button — green accent -->
         <Style Selector="Button.SaveButton">
             <Setter Property="FontSize" Value="16"/>
             <Setter Property="FontWeight" Value="Bold"/>
@@ -60,10 +57,9 @@
             <Setter Property="Background" Value="DarkGreen"/>
         </Style>
 
-        <!-- Clear button — small, per-row -->
         <Style Selector="Button.ClearButton">
             <Setter Property="FontSize" Value="12"/>
-            <Setter Property="Background" Value="DarkRed"/>
+            <Setter Property="Background" Value="Red"/>
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="Padding" Value="6,2"/>
             <Setter Property="Cursor" Value="Hand"/>
@@ -71,10 +67,9 @@
             <Setter Property="MinWidth" Value="50"/>
         </Style>
         <Style Selector="Button.ClearButton:pointerover /template/ ContentPresenter#PART_ContentPresenter">
-            <Setter Property="Background" Value="Red"/>
+            <Setter Property="Background" Value="DarkRed"/>
         </Style>
 
-        <!-- Section borders -->
         <Style Selector="Border.Section">
             <Setter Property="CornerRadius" Value="5"/>
             <Setter Property="Padding" Value="12"/>
@@ -84,7 +79,6 @@
             <Setter Property="Margin" Value="0,6"/>
         </Style>
 
-        <!-- Labels -->
         <Style Selector="TextBlock.SectionTitle">
             <Setter Property="FontSize" Value="16"/>
             <Setter Property="FontWeight" Value="Bold"/>
@@ -105,7 +99,6 @@
             <Setter Property="MinWidth" Value="130"/>
         </Style>
 
-        <!-- CheckBox -->
         <Style Selector="CheckBox">
             <Setter Property="Foreground" Value="Black"/>
             <Setter Property="Cursor" Value="Hand"/>
@@ -116,27 +109,22 @@
         <vm:ControllerSetupViewModel />
     </Design.DataContext>
 
-    <!-- Main layout: scrollable column -->
     <Grid RowDefinitions="Auto,*,Auto">
 
-        <!-- ═══ Top bar ═══ -->
         <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Left" Margin="10">
             <Button Classes="BackButton"
                     Content="◀◀ Back"
-                    Command="{Binding NavigateToMainCommand}"/>
+                    Command="{Binding NavigateToSettingsCommand}"/>
         </StackPanel>
 
-        <!-- ═══ Scrollable content ═══ -->
         <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="20,0">
             <StackPanel HorizontalAlignment="Center" MaxWidth="700" Spacing="10">
 
-                <!-- Title -->
                 <TextBlock Text="Controller Setup"
                            FontSize="24" FontWeight="Bold"
                            Foreground="Orange" HorizontalAlignment="Center"
                            Margin="0,10,0,4"/>
 
-                <!-- ── Port selection ── -->
                 <Border Classes="Section">
                     <StackPanel Spacing="8">
                         <TextBlock Classes="SectionTitle" Text="Controller Port"/>
@@ -151,7 +139,6 @@
                     </StackPanel>
                 </Border>
 
-                <!-- ── Device info ── -->
                 <Border Classes="Section">
                     <StackPanel Spacing="8">
                         <TextBlock Classes="SectionTitle" Text="Device"/>
@@ -165,10 +152,53 @@
                                            Minimum="-1" Maximum="16"
                                            FormatString="0" MinWidth="100"/>
                         </StackPanel>
+                        <StackPanel Orientation="Horizontal" Spacing="10">
+                            <TextBlock Classes="FieldLabel" Text="Detected:"/>
+                            <ComboBox ItemsSource="{Binding DetectedDevices}"
+                                      SelectedIndex="{Binding SelectedDetectedDeviceIndex}"
+                                      MinWidth="260"/>
+                            <Button Classes="ActionButton"
+                                    Content="Refresh"
+                                    Command="{Binding RefreshDevicesCommand}"/>
+                        </StackPanel>
                     </StackPanel>
                 </Border>
 
-                <!-- ── Preset selector ── -->
+                <!-- Analog Stick Visualizer -->
+                <Border Classes="Section">
+                    <StackPanel Spacing="8">
+                        <TextBlock Classes="SectionTitle" Text="Stick Visualizer"/>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="30">
+                            <!-- Left Stick -->
+                            <StackPanel Spacing="4" HorizontalAlignment="Center">
+                                <TextBlock Text="Left Stick" FontSize="13" FontWeight="SemiBold"
+                                           Foreground="Black" HorizontalAlignment="Center"/>
+                                <Border Width="120" Height="120" CornerRadius="60"
+                                        Background="#333" BorderBrush="Orange" BorderThickness="2">
+                                    <Canvas Width="120" Height="120">
+                                        <Ellipse Width="12" Height="12" Fill="Gray"
+                                                 Canvas.Left="{Binding LeftStickCanvasX}"
+                                                 Canvas.Top="{Binding LeftStickCanvasY}"/>
+                                    </Canvas>
+                                </Border>
+                            </StackPanel>
+                            <!-- Right Stick -->
+                            <!-- <StackPanel Spacing="4" HorizontalAlignment="Center">
+                                <TextBlock Text="Right Stick" FontSize="13" FontWeight="SemiBold"
+                                           Foreground="Black" HorizontalAlignment="Center"/>
+                                <Border Width="120" Height="120" CornerRadius="60"
+                                        Background="#333" BorderBrush="Orange" BorderThickness="2">
+                                    <Canvas Width="120" Height="120">
+                                        <Ellipse Width="12" Height="12" Fill="Orange"
+                                                 Canvas.Left="{Binding RightStickCanvasX}"
+                                                 Canvas.Top="{Binding RightStickCanvasY}"/>
+                                    </Canvas>
+                                </Border>
+                            </StackPanel> -->
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
                 <Border Classes="Section">
                     <StackPanel Spacing="8">
                         <TextBlock Classes="SectionTitle" Text="Presets"/>
@@ -189,37 +219,49 @@
                     </StackPanel>
                 </Border>
 
-                <!-- ── Button / Axis bindings ── -->
                 <Border Classes="Section">
                     <StackPanel Spacing="6">
-                        <TextBlock Classes="SectionTitle" Text="Button &amp; Axis Mappings"/>
-                        <TextBlock Text="Edit the SDL input string for each N64 input (e.g. button(0), axis(2+), hat(0 Right))."
-                                   FontSize="12" Foreground="DimGray" Margin="0,0,0,4" TextWrapping="Wrap"/>
+                        <TextBlock Classes="SectionTitle" Text="Button and Axis Mappings"/>
+                        <!-- <TextBlock Text="Edit the SDL input string for each N64 input (e.g. button(0), axis(2+), hat(0 Right))."
+                                   FontSize="12" Foreground="DimGray" Margin="0,0,0,4" TextWrapping="Wrap"/> -->
 
                         <ItemsControl ItemsSource="{Binding Bindings}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate x:DataType="vm:ControllerBinding">
-                                    <Grid ColumnDefinitions="140,*,Auto" Margin="0,2">
+                                    <Grid ColumnDefinitions="140,*,Auto,Auto" Margin="0,2">
                                         <TextBlock Grid.Column="0"
                                                    Classes="BindingLabel"
                                                    Text="{Binding DisplayLabel}"/>
                                         <TextBox Grid.Column="1"
-                                                 Text="{Binding BoundValue}"
-                                                 MinWidth="200"
-                                                 Watermark="(unbound)"/>
+                                                Text="{Binding BoundValue}"
+                                                MinWidth="200"/>
                                         <Button Grid.Column="2"
+                                                Classes="ActionButton"
+                                                Content="Set"
+                                                ToolTip.Tip="Listen for input"
+                                                MinWidth="40"
+                                                Padding="4,2"
+                                                Command="{Binding $parent[ItemsControl].((vm:ControllerSetupViewModel)DataContext).ListenForInputCommand}"
+                                                CommandParameter="{Binding}"/>
+                                        <Button Grid.Column="3"
                                                 Classes="ClearButton"
-                                                Content="✕"
+                                                Content="Clear"
+                                                ToolTip.Tip="Clear binding"
                                                 Command="{Binding $parent[ItemsControl].((vm:ControllerSetupViewModel)DataContext).ClearBindingCommand}"
                                                 CommandParameter="{Binding}"/>
                                     </Grid>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
+
+                        <Button Classes="ActionButton"
+                                Content="Cancel Binding"
+                                HorizontalAlignment="Right"
+                                Command="{Binding CancelListenCommand}"
+                                Margin="0,4,0,0"/>
                     </StackPanel>
                 </Border>
 
-                <!-- ── Analog settings ── -->
                 <Border Classes="Section">
                     <StackPanel Spacing="8">
                         <TextBlock Classes="SectionTitle" Text="Analog Stick Settings"/>
@@ -246,7 +288,6 @@
                     </StackPanel>
                 </Border>
 
-                <!-- ── Expansion pak ── -->
                 <Border Classes="Section">
                     <StackPanel Spacing="8">
                         <TextBlock Classes="SectionTitle" Text="Expansion Pak"/>
@@ -262,11 +303,10 @@
             </StackPanel>
         </ScrollViewer>
 
-        <!-- ═══ Bottom bar: actions + status ═══ -->
         <StackPanel Grid.Row="2" Spacing="6" Margin="20,8">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="8">
                 <Button Classes="SaveButton"
-                        Content="💾 Save"
+                        Content="Save"
                         Command="{Binding SaveBindingsCommand}"/>
                 <Button Classes="ActionButton"
                         Content="Reset Defaults"
