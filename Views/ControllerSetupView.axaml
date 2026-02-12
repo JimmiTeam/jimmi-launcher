@@ -19,6 +19,7 @@
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Margin" Value="0"/>
             <Setter Property="MinWidth" Value="90"/>
+            <Setter Property="Float" Value="Left"/>
         </Style>
         <Style Selector="Button.BackButton:pointerover /template/ ContentPresenter#PART_ContentPresenter">
             <Setter Property="Foreground" Value="Chocolate"/>
@@ -112,7 +113,6 @@
 
     <Grid RowDefinitions="Auto,*,Auto" Margin="10,6">
 
-        <!-- Top bar: Back + Title -->
         <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="12" Margin="0,0,0,4" HorizontalAlignment="Center">
             <Button Classes="BackButton"
                     Content="◀◀ Back"
@@ -147,28 +147,6 @@
                     </StackPanel>
                 </Border>
 
-                <!-- Presets -->
-                <Border Classes="Section">
-                    <StackPanel Spacing="4">
-                        <TextBlock Classes="SectionTitle" Text="Presets"/>
-                        <StackPanel Orientation="Horizontal" Spacing="6">
-                            <ComboBox ItemsSource="{Binding Presets}"
-                                      SelectedItem="{Binding SelectedPreset}"
-                                      MinWidth="200">
-                                <ComboBox.ItemTemplate>
-                                    <DataTemplate>
-                                        <TextBlock Text="{Binding Name}" Foreground="Black"/>
-                                    </DataTemplate>
-                                </ComboBox.ItemTemplate>
-                            </ComboBox>
-                            <Button Classes="ActionButton"
-                                    Content="Apply"
-                                    Command="{Binding ApplyPresetCommand}"/>
-                        </StackPanel>
-                    </StackPanel>
-                </Border>
-
-                <!-- Analog Stick Settings -->
                 <Border Classes="Section">
                     <StackPanel Spacing="4">
                         <TextBlock Classes="SectionTitle" Text="Analog Stick Settings"/>
@@ -178,40 +156,30 @@
                                     Minimum="0" Maximum="16384" VerticalAlignment="Center"/>
                             <TextBlock Grid.Row="0" Grid.Column="2" Text="{Binding AnalogDeadzone}"
                                        Foreground="Black" VerticalAlignment="Center" FontSize="11"/>
-
                             <TextBlock Grid.Row="1" Grid.Column="0" Classes="FieldLabel" Text="Peak:"/>
                             <Slider Grid.Row="1" Grid.Column="1" Value="{Binding AnalogPeak}"
                                     Minimum="1" Maximum="32768" VerticalAlignment="Center"/>
                             <TextBlock Grid.Row="1" Grid.Column="2" Text="{Binding AnalogPeak}"
                                        Foreground="Black" VerticalAlignment="Center" FontSize="11"/>
+                            <Border Width="100" Height="100" CornerRadius="50"
+                                    Background="#333" BorderBrush="Orange" BorderThickness="2">
+                                <Canvas Width="100" Height="100">
+                                    <Ellipse Width="50" Height="50" Fill="#AAA"
+                                        Canvas.Left="{Binding LeftStickCanvasX}"
+                                        Canvas.Top="{Binding LeftStickCanvasY}"/>
+                                    <Ellipse Width="40" Height="40" Fill="#888"
+                                        Canvas.Left="{Binding LeftStickCanvasX}"
+                                        Canvas.Top="{Binding LeftStickCanvasY}"/>
+                                    <Ellipse Width="35" Height="35" Fill="#AAA"
+                                        Canvas.Left="{Binding LeftStickCanvasX}"
+                                        Canvas.Top="{Binding LeftStickCanvasY}"/>
+                                </Canvas>
+                            </Border>
                         </Grid>
                     </StackPanel>
                 </Border>
-
-                <!-- Stick Visualizer -->
-                <Border Classes="Section">
-                    <StackPanel Spacing="4">
-                        <TextBlock Classes="SectionTitle" Text="Stick Visualizer"/>
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="20">
-                            <StackPanel Spacing="2" HorizontalAlignment="Center">
-                                <TextBlock Text="Left Stick" FontSize="11" FontWeight="SemiBold"
-                                           Foreground="Black" HorizontalAlignment="Center"/>
-                                <Border Width="100" Height="100" CornerRadius="50"
-                                        Background="#333" BorderBrush="Orange" BorderThickness="2">
-                                    <Canvas Width="100" Height="100">
-                                        <Ellipse Width="12" Height="12" Fill="Gray"
-                                                 Canvas.Left="{Binding LeftStickCanvasX}"
-                                                 Canvas.Top="{Binding LeftStickCanvasY}"/>
-                                    </Canvas>
-                                </Border>
-                            </StackPanel>
-                        </StackPanel>
-                    </StackPanel>
-                </Border>
-
             </StackPanel>
 
-            <!-- RIGHT COLUMN: Button & Axis Mappings -->
             <Border Grid.Column="1" Classes="Section">
                 <StackPanel Spacing="2">
                     <StackPanel Orientation="Horizontal" Spacing="0">

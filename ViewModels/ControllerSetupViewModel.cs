@@ -126,12 +126,12 @@ public partial class ControllerSetupViewModel : MenuViewModelBase, IDisposable
     private double _rightStickY = 0.5;
 
     private const double StickCanvasSize = 100.0;
-    private const double DotRadius = 6.0;
+    private const double DotRadius = 50.0;
 
-    public double LeftStickCanvasX => LeftStickX * (StickCanvasSize - DotRadius * 2);
-    public double LeftStickCanvasY => LeftStickY * (StickCanvasSize - DotRadius * 2);
-    public double RightStickCanvasX => RightStickX * (StickCanvasSize - DotRadius * 2);
-    public double RightStickCanvasY => RightStickY * (StickCanvasSize - DotRadius * 2);
+    public double LeftStickCanvasX => LeftStickX; //* (StickCanvasSize - DotRadius * 2);
+    public double LeftStickCanvasY => LeftStickY; //* (StickCanvasSize - DotRadius * 2);
+    public double RightStickCanvasX => RightStickX; //* (StickCanvasSize - DotRadius * 2);
+    public double RightStickCanvasY => RightStickY; //* (StickCanvasSize - DotRadius * 2);
 
     private GamepadService? _gamepadService;
     private ControllerBinding? _listeningBinding;
@@ -170,7 +170,7 @@ public partial class ControllerSetupViewModel : MenuViewModelBase, IDisposable
     {
         _onNavigateRequested = onNavigateRequested;
 
-        InitializePresets();
+        // InitializePresets();
         InitializeBindings();
         LoadPortBindings();
         InitializeGamepadService();
@@ -204,8 +204,11 @@ public partial class ControllerSetupViewModel : MenuViewModelBase, IDisposable
             ["C Button U"] = "axis(3-)",
             ["R Trig"] = "button(5) axis(5+)",
             ["L Trig"] = "button(4)",
-            ["X Axis"] = "axis(0-,0+)",
-            ["Y Axis"] = "axis(1-,1+)",
+            ["Stick R"] = "axis(1+)",
+            ["Stick L"] = "axis(1-)",
+            ["Stick D"] = "axis(0+)",
+            ["Stick U"] = "axis(0-)",
+            
         }));
 
         Presets.Add(new ControllerPreset("Xbox Alt (C on Right Stick)", new Dictionary<string, string>
@@ -296,7 +299,7 @@ public partial class ControllerSetupViewModel : MenuViewModelBase, IDisposable
         catch (Exception ex)
         {
             StatusMessage = $"Error loading config: {ex.Message}";
-            Debug.WriteLine($"ControllerSetup LoadPortBindings error: {ex}");
+            Console.WriteLine($"ControllerSetup LoadPortBindings error: {ex}");
         }
     }
 
@@ -357,7 +360,7 @@ public partial class ControllerSetupViewModel : MenuViewModelBase, IDisposable
         catch (Exception ex)
         {
             StatusMessage = $"Error saving config: {ex.Message}";
-            Debug.WriteLine($"ControllerSetup SaveBindings error: {ex}");
+            Console.WriteLine($"ControllerSetup SaveBindings error: {ex}");
         }
     }
 
@@ -393,7 +396,7 @@ public partial class ControllerSetupViewModel : MenuViewModelBase, IDisposable
         if (Presets.Count > 0)
         {
             SelectedPreset = Presets[0];
-            ApplyPreset();
+            // ApplyPreset();
             IsPluggedIn = SelectedPortIndex == 0;
             DeviceIndex = SelectedPortIndex == 0 ? 0 : -1;
             AnalogDeadzone = 4096;
@@ -431,14 +434,14 @@ public partial class ControllerSetupViewModel : MenuViewModelBase, IDisposable
         }
         catch (Exception ex)
         {
-            Debug.WriteLine($"[ControllerSetup] Failed to start GamepadService: {ex.Message}");
+            Console.WriteLine($"[ControllerSetup] Failed to start GamepadService: {ex.Message}");
             StatusMessage = "Gamepad service unavailable.";
         }
     }
 
     private void OnDiagnosticMessage(string message)
     {
-        Debug.WriteLine($"[GamepadDiag] {message}");
+        Console.WriteLine($"[GamepadDiag] {message}");
         Dispatcher.UIThread.Post(() =>
         {
             StatusMessage = message;
@@ -525,7 +528,7 @@ public partial class ControllerSetupViewModel : MenuViewModelBase, IDisposable
         }
         catch (Exception ex)
         {
-            Debug.WriteLine($"[ControllerSetup] RefreshDevices error: {ex.Message}");
+            Console.WriteLine($"[ControllerSetup] RefreshDevices error: {ex.Message}");
             StatusMessage = $"Refresh error: {ex.Message}";
         }
     }
