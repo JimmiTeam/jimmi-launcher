@@ -8,18 +8,23 @@
 
     <UserControl.Styles>
         <Style Selector="Button.BackButton">
-            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="FontSize" Value="15"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="HorizontalContentAlignment" Value="Center"/>
-            <Setter Property="Margin" Value="5"/>
             <Setter Property="Background" Value="Black"/>
             <Setter Property="Foreground" Value="Orange"/>
-            <Setter Property="Padding" Value="10,5"/>
+            <Setter Property="BorderBrush" Value="Orange"/>
+            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="Padding" Value="8,3"/>
             <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="MinWidth" Value="100"/>
+            <Setter Property="Margin" Value="0"/>
+            <Setter Property="MinWidth" Value="90"/>
         </Style>
         <Style Selector="Button.BackButton:pointerover /template/ ContentPresenter#PART_ContentPresenter">
-            <Setter Property="Background" Value="#333333"/>
+            <Setter Property="Foreground" Value="Chocolate"/>
+            <Setter Property="Background" Value="Black"/>
+            <Setter Property="BorderBrush" Value="Chocolate"/>
+            <Setter Property="BorderThickness" Value="2"/>
         </Style>
         <Style Selector="Button.MenuButton">
             <Setter Property="FontSize" Value="20"/>
@@ -44,7 +49,7 @@
         <!-- Top bar with Back button -->
         <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="10">
             <Button Classes="BackButton"
-                    Content="&#x2190; Back"
+                    Content="◀◀ Back"
                     Command="{Binding NavigateToMainCommand}" />
         </StackPanel>
 

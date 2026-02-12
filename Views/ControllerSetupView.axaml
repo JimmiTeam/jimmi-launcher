@@ -8,17 +8,17 @@
 
     <UserControl.Styles>
         <Style Selector="Button.BackButton">
-            <Setter Property="FontSize" Value="18"/>
+            <Setter Property="FontSize" Value="16"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="HorizontalContentAlignment" Value="Center"/>
             <Setter Property="Background" Value="Black"/>
             <Setter Property="Foreground" Value="Orange"/>
             <Setter Property="BorderBrush" Value="Orange"/>
             <Setter Property="BorderThickness" Value="2"/>
-            <Setter Property="Padding" Value="10,5"/>
+            <Setter Property="Padding" Value="8,3"/>
             <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Margin" Value="10"/>
-            <Setter Property="MinWidth" Value="120"/>
+            <Setter Property="Margin" Value="0"/>
+            <Setter Property="MinWidth" Value="90"/>
         </Style>
         <Style Selector="Button.BackButton:pointerover /template/ ContentPresenter#PART_ContentPresenter">
             <Setter Property="Foreground" Value="Chocolate"/>
@@ -31,72 +31,73 @@
             <Setter Property="FontSize" Value="14"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="HorizontalContentAlignment" Value="Center"/>
-            <Setter Property="Background" Value="Orange"/>
+            <Setter Property="Background" Value="SlateGray"/>
             <Setter Property="Foreground" Value="Black"/>
-            <Setter Property="Padding" Value="12,6"/>
+            <Setter Property="Padding" Value="8,3"/>
             <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Margin" Value="4"/>
-            <Setter Property="MinWidth" Value="100"/>
+            <Setter Property="Margin" Value="2"/>
+            <Setter Property="MinWidth" Value="60"/>
         </Style>
         <Style Selector="Button.ActionButton:pointerover /template/ ContentPresenter#PART_ContentPresenter">
-            <Setter Property="Background" Value="Chocolate"/>
+            <Setter Property="Background" Value="DarkSlateGray"/>
         </Style>
 
         <Style Selector="Button.SaveButton">
-            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="FontSize" Value="14"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="HorizontalContentAlignment" Value="Center"/>
             <Setter Property="Background" Value="Green"/>
             <Setter Property="Foreground" Value="Black"/>
-            <Setter Property="Padding" Value="14,8"/>
+            <Setter Property="Padding" Value="10,5"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Margin" Value="4"/>
-            <Setter Property="MinWidth" Value="140"/>
+            <Setter Property="MinWidth" Value="100"/>
         </Style>
         <Style Selector="Button.SaveButton:pointerover /template/ ContentPresenter#PART_ContentPresenter">
             <Setter Property="Background" Value="DarkGreen"/>
         </Style>
 
         <Style Selector="Button.ClearButton">
-            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontSize" Value="11"/>
             <Setter Property="Background" Value="Red"/>
             <Setter Property="Foreground" Value="White"/>
-            <Setter Property="Padding" Value="6,2"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="Padding" Value="4,1"/>
             <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Margin" Value="2,0"/>
-            <Setter Property="MinWidth" Value="50"/>
+            <Setter Property="Margin" Value="1,0"/>
+            <Setter Property="MinWidth" Value="36"/>
         </Style>
         <Style Selector="Button.ClearButton:pointerover /template/ ContentPresenter#PART_ContentPresenter">
             <Setter Property="Background" Value="DarkRed"/>
         </Style>
 
         <Style Selector="Border.Section">
-            <Setter Property="CornerRadius" Value="5"/>
-            <Setter Property="Padding" Value="12"/>
+            <Setter Property="CornerRadius" Value="4"/>
+            <Setter Property="Padding" Value="8,6"/>
             <Setter Property="Background" Value="Orange"/>
             <Setter Property="BorderBrush" Value="Chocolate"/>
             <Setter Property="BorderThickness" Value="2"/>
-            <Setter Property="Margin" Value="0,6"/>
+            <Setter Property="Margin" Value="0,3"/>
         </Style>
 
         <Style Selector="TextBlock.SectionTitle">
-            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="FontSize" Value="13"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="Foreground" Value="Black"/>
-            <Setter Property="Margin" Value="0,0,0,6"/>
+            <Setter Property="Margin" Value="0,0,0,3"/>
         </Style>
         <Style Selector="TextBlock.FieldLabel">
-            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontSize" Value="12"/>
             <Setter Property="Foreground" Value="Black"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
-            <Setter Property="MinWidth" Value="120"/>
+            <Setter Property="MinWidth" Value="80"/>
         </Style>
         <Style Selector="TextBlock.BindingLabel">
-            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontSize" Value="12"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="Foreground" Value="Black"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
-            <Setter Property="MinWidth" Value="130"/>
+            <Setter Property="MinWidth" Value="100"/>
         </Style>
 
         <Style Selector="CheckBox">
@@ -109,103 +110,51 @@
         <vm:ControllerSetupViewModel />
     </Design.DataContext>
 
-    <Grid RowDefinitions="Auto,*,Auto">
+    <Grid RowDefinitions="Auto,*,Auto" Margin="10,6">
 
-        <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Left" Margin="10">
+        <!-- Top bar: Back + Title -->
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="12" Margin="0,0,0,4" HorizontalAlignment="Center">
             <Button Classes="BackButton"
                     Content="◀◀ Back"
                     Command="{Binding NavigateToSettingsCommand}"/>
+            <TextBlock Text="Controller Setup"
+                       FontSize="20" FontWeight="Bold"
+                       Foreground="Orange" VerticalAlignment="Center"
+                       HorizontalAlignment="Center"/>
         </StackPanel>
 
-        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="20,0">
-            <StackPanel HorizontalAlignment="Center" MaxWidth="700" Spacing="10">
+        <Grid Grid.Row="1" ColumnDefinitions="*,*" Margin="0,2">
 
-                <TextBlock Text="Controller Setup"
-                           FontSize="24" FontWeight="Bold"
-                           Foreground="Orange" HorizontalAlignment="Center"
-                           Margin="0,10,0,4"/>
+            <StackPanel Grid.Column="0" Spacing="0" Margin="0,0,6,0">
 
                 <Border Classes="Section">
-                    <StackPanel Spacing="8">
-                        <TextBlock Classes="SectionTitle" Text="Controller Port"/>
-                        <StackPanel Orientation="Horizontal" Spacing="10">
-                            <TextBlock Classes="FieldLabel" Text="Port:"/>
-                            <ComboBox ItemsSource="{Binding ControllerPorts}"
-                                      SelectedIndex="{Binding SelectedPortIndex}"
-                                      MinWidth="180"/>
-                        </StackPanel>
-                        <CheckBox Content="Plugged In"
-                                  IsChecked="{Binding IsPluggedIn}"/>
-                    </StackPanel>
-                </Border>
-
-                <Border Classes="Section">
-                    <StackPanel Spacing="8">
+                    <StackPanel Spacing="4">
                         <TextBlock Classes="SectionTitle" Text="Device"/>
-                        <StackPanel Orientation="Horizontal" Spacing="10">
-                            <TextBlock Classes="FieldLabel" Text="Device Name:"/>
-                            <TextBox Text="{Binding DeviceName}" MinWidth="260" MaxWidth="400"/>
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal" Spacing="10">
-                            <TextBlock Classes="FieldLabel" Text="Device Index:"/>
-                            <NumericUpDown Value="{Binding DeviceIndex}"
-                                           Minimum="-1" Maximum="16"
-                                           FormatString="0" MinWidth="100"/>
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal" Spacing="10">
-                            <TextBlock Classes="FieldLabel" Text="Detected:"/>
-                            <ComboBox ItemsSource="{Binding DetectedDevices}"
-                                      SelectedIndex="{Binding SelectedDetectedDeviceIndex}"
-                                      MinWidth="260"/>
-                            <Button Classes="ActionButton"
-                                    Content="Refresh"
-                                    Command="{Binding RefreshDevicesCommand}"/>
-                        </StackPanel>
-                    </StackPanel>
-                </Border>
+                        <Grid ColumnDefinitions="80,*" RowDefinitions="Auto,Auto,Auto" Margin="0" >
+                            <TextBlock Grid.Row="0" Grid.Column="0" Classes="FieldLabel" Text="Name:"/>
+                            <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding DeviceName}" Margin="0,1"/>
 
-                <!-- Analog Stick Visualizer -->
-                <Border Classes="Section">
-                    <StackPanel Spacing="8">
-                        <TextBlock Classes="SectionTitle" Text="Stick Visualizer"/>
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="30">
-                            <!-- Left Stick -->
-                            <StackPanel Spacing="4" HorizontalAlignment="Center">
-                                <TextBlock Text="Left Stick" FontSize="13" FontWeight="SemiBold"
-                                           Foreground="Black" HorizontalAlignment="Center"/>
-                                <Border Width="120" Height="120" CornerRadius="60"
-                                        Background="#333" BorderBrush="Orange" BorderThickness="2">
-                                    <Canvas Width="120" Height="120">
-                                        <Ellipse Width="12" Height="12" Fill="Gray"
-                                                 Canvas.Left="{Binding LeftStickCanvasX}"
-                                                 Canvas.Top="{Binding LeftStickCanvasY}"/>
-                                    </Canvas>
-                                </Border>
+                            <TextBlock Grid.Row="2" Grid.Column="0" Classes="FieldLabel" Text="Detected:"/>
+                            <StackPanel Grid.Row="2" Grid.Column="1" Orientation="Horizontal" Spacing="4" Margin="0,1">
+                                <ComboBox ItemsSource="{Binding DetectedDevices}"
+                                          SelectedIndex="{Binding SelectedDetectedDeviceIndex}"
+                                          MinWidth="150"/>
+                                <Button Classes="ActionButton"
+                                        Content="Refresh"
+                                        Command="{Binding RefreshDevicesCommand}"/>
                             </StackPanel>
-                            <!-- Right Stick -->
-                            <!-- <StackPanel Spacing="4" HorizontalAlignment="Center">
-                                <TextBlock Text="Right Stick" FontSize="13" FontWeight="SemiBold"
-                                           Foreground="Black" HorizontalAlignment="Center"/>
-                                <Border Width="120" Height="120" CornerRadius="60"
-                                        Background="#333" BorderBrush="Orange" BorderThickness="2">
-                                    <Canvas Width="120" Height="120">
-                                        <Ellipse Width="12" Height="12" Fill="Orange"
-                                                 Canvas.Left="{Binding RightStickCanvasX}"
-                                                 Canvas.Top="{Binding RightStickCanvasY}"/>
-                                    </Canvas>
-                                </Border>
-                            </StackPanel> -->
-                        </StackPanel>
+                        </Grid>
                     </StackPanel>
                 </Border>
 
+                <!-- Presets -->
                 <Border Classes="Section">
-                    <StackPanel Spacing="8">
+                    <StackPanel Spacing="4">
                         <TextBlock Classes="SectionTitle" Text="Presets"/>
-                        <StackPanel Orientation="Horizontal" Spacing="10">
+                        <StackPanel Orientation="Horizontal" Spacing="6">
                             <ComboBox ItemsSource="{Binding Presets}"
                                       SelectedItem="{Binding SelectedPreset}"
-                                      MinWidth="280">
+                                      MinWidth="200">
                                 <ComboBox.ItemTemplate>
                                     <DataTemplate>
                                         <TextBlock Text="{Binding Name}" Foreground="Black"/>
@@ -213,97 +162,107 @@
                                 </ComboBox.ItemTemplate>
                             </ComboBox>
                             <Button Classes="ActionButton"
-                                    Content="Apply Preset"
+                                    Content="Apply"
                                     Command="{Binding ApplyPresetCommand}"/>
                         </StackPanel>
                     </StackPanel>
                 </Border>
 
+                <!-- Analog Stick Settings -->
                 <Border Classes="Section">
-                    <StackPanel Spacing="6">
-                        <TextBlock Classes="SectionTitle" Text="Button and Axis Mappings"/>
-                        <!-- <TextBlock Text="Edit the SDL input string for each N64 input (e.g. button(0), axis(2+), hat(0 Right))."
-                                   FontSize="12" Foreground="DimGray" Margin="0,0,0,4" TextWrapping="Wrap"/> -->
-
-                        <ItemsControl ItemsSource="{Binding Bindings}">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate x:DataType="vm:ControllerBinding">
-                                    <Grid ColumnDefinitions="140,*,Auto,Auto" Margin="0,2">
-                                        <TextBlock Grid.Column="0"
-                                                   Classes="BindingLabel"
-                                                   Text="{Binding DisplayLabel}"/>
-                                        <TextBox Grid.Column="1"
-                                                Text="{Binding BoundValue}"
-                                                MinWidth="200"/>
-                                        <Button Grid.Column="2"
-                                                Classes="ActionButton"
-                                                Content="Set"
-                                                ToolTip.Tip="Listen for input"
-                                                MinWidth="40"
-                                                Padding="4,2"
-                                                Command="{Binding $parent[ItemsControl].((vm:ControllerSetupViewModel)DataContext).ListenForInputCommand}"
-                                                CommandParameter="{Binding}"/>
-                                        <Button Grid.Column="3"
-                                                Classes="ClearButton"
-                                                Content="Clear"
-                                                ToolTip.Tip="Clear binding"
-                                                Command="{Binding $parent[ItemsControl].((vm:ControllerSetupViewModel)DataContext).ClearBindingCommand}"
-                                                CommandParameter="{Binding}"/>
-                                    </Grid>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-
-                        <Button Classes="ActionButton"
-                                Content="Cancel Binding"
-                                HorizontalAlignment="Right"
-                                Command="{Binding CancelListenCommand}"
-                                Margin="0,4,0,0"/>
-                    </StackPanel>
-                </Border>
-
-                <Border Classes="Section">
-                    <StackPanel Spacing="8">
+                    <StackPanel Spacing="4">
                         <TextBlock Classes="SectionTitle" Text="Analog Stick Settings"/>
+                        <Grid ColumnDefinitions="70,*,40" RowDefinitions="Auto,Auto">
+                            <TextBlock Grid.Row="0" Grid.Column="0" Classes="FieldLabel" Text="Deadzone:"/>
+                            <Slider Grid.Row="0" Grid.Column="1" Value="{Binding AnalogDeadzone}"
+                                    Minimum="0" Maximum="16384" VerticalAlignment="Center"/>
+                            <TextBlock Grid.Row="0" Grid.Column="2" Text="{Binding AnalogDeadzone}"
+                                       Foreground="Black" VerticalAlignment="Center" FontSize="11"/>
 
-                        <StackPanel Orientation="Horizontal" Spacing="10">
-                            <TextBlock Classes="FieldLabel" Text="Deadzone:"/>
-                            <Slider Value="{Binding AnalogDeadzone}"
-                                    Minimum="0" Maximum="16384"
-                                    MinWidth="280" VerticalAlignment="Center"/>
-                            <TextBlock Text="{Binding AnalogDeadzone}"
-                                       Foreground="Black" VerticalAlignment="Center"
-                                       MinWidth="50"/>
-                        </StackPanel>
-
-                        <StackPanel Orientation="Horizontal" Spacing="10">
-                            <TextBlock Classes="FieldLabel" Text="Peak:"/>
-                            <Slider Value="{Binding AnalogPeak}"
-                                    Minimum="1" Maximum="32768"
-                                    MinWidth="280" VerticalAlignment="Center"/>
-                            <TextBlock Text="{Binding AnalogPeak}"
-                                       Foreground="Black" VerticalAlignment="Center"
-                                       MinWidth="50"/>
-                        </StackPanel>
+                            <TextBlock Grid.Row="1" Grid.Column="0" Classes="FieldLabel" Text="Peak:"/>
+                            <Slider Grid.Row="1" Grid.Column="1" Value="{Binding AnalogPeak}"
+                                    Minimum="1" Maximum="32768" VerticalAlignment="Center"/>
+                            <TextBlock Grid.Row="1" Grid.Column="2" Text="{Binding AnalogPeak}"
+                                       Foreground="Black" VerticalAlignment="Center" FontSize="11"/>
+                        </Grid>
                     </StackPanel>
                 </Border>
 
+                <!-- Stick Visualizer -->
                 <Border Classes="Section">
-                    <StackPanel Spacing="8">
-                        <TextBlock Classes="SectionTitle" Text="Expansion Pak"/>
-                        <StackPanel Orientation="Horizontal" Spacing="10">
-                            <TextBlock Classes="FieldLabel" Text="Type:"/>
-                            <ComboBox ItemsSource="{Binding ExpansionPakOptions}"
-                                      SelectedIndex="{Binding SelectedExpansionPakIndex}"
-                                      MinWidth="180"/>
+                    <StackPanel Spacing="4">
+                        <TextBlock Classes="SectionTitle" Text="Stick Visualizer"/>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="20">
+                            <StackPanel Spacing="2" HorizontalAlignment="Center">
+                                <TextBlock Text="Left Stick" FontSize="11" FontWeight="SemiBold"
+                                           Foreground="Black" HorizontalAlignment="Center"/>
+                                <Border Width="100" Height="100" CornerRadius="50"
+                                        Background="#333" BorderBrush="Orange" BorderThickness="2">
+                                    <Canvas Width="100" Height="100">
+                                        <Ellipse Width="12" Height="12" Fill="Gray"
+                                                 Canvas.Left="{Binding LeftStickCanvasX}"
+                                                 Canvas.Top="{Binding LeftStickCanvasY}"/>
+                                    </Canvas>
+                                </Border>
+                            </StackPanel>
                         </StackPanel>
                     </StackPanel>
                 </Border>
 
             </StackPanel>
-        </ScrollViewer>
 
-        <StackPanel Grid.Row="2" Spacing="6" Margin="20,8">
+            <!-- RIGHT COLUMN: Button & Axis Mappings -->
+            <Border Grid.Column="1" Classes="Section">
+                <StackPanel Spacing="2">
+                    <StackPanel Orientation="Horizontal" Spacing="0">
+                        <TextBlock Classes="SectionTitle" Text="Button and Axis Mappings"
+                                   VerticalAlignment="Center"/>
+                        <Button Classes="ActionButton"
+                                Content="Cancel Bind"
+                                HorizontalAlignment="Right"
+                                Command="{Binding CancelListenCommand}"
+                                Margin="8,0,0,0"
+                                FontSize="11" Padding="6,2"/>
+                    </StackPanel>
+
+                    <ItemsControl ItemsSource="{Binding Bindings}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="vm:ControllerBinding">
+                                <Grid ColumnDefinitions="105,*,Auto,Auto" Margin="0,1">
+                                    <TextBlock Grid.Column="0"
+                                               Classes="BindingLabel"
+                                               Text="{Binding DisplayLabel}"/>
+                                    <TextBox Grid.Column="1"
+                                            Text="{Binding BoundValue}"
+                                            FontSize="12"
+                                            Padding="4,2"
+                                            MinHeight="0"/>
+                                    <Button Grid.Column="2"
+                                            Classes="ActionButton"
+                                            Content="Set"
+                                            ToolTip.Tip="Listen for input"
+                                            MinWidth="34"
+                                            Padding="4,1"
+                                            FontSize="11"
+                                            Command="{Binding $parent[ItemsControl].((vm:ControllerSetupViewModel)DataContext).ListenForInputCommand}"
+                                            CommandParameter="{Binding}"/>
+                                    <Button Grid.Column="3"
+                                            Classes="ClearButton"
+                                            Content="✕"
+                                            ToolTip.Tip="Clear binding"
+                                            MinWidth="26"
+                                            Command="{Binding $parent[ItemsControl].((vm:ControllerSetupViewModel)DataContext).ClearBindingCommand}"
+                                            CommandParameter="{Binding}"/>
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <!-- Bottom bar: Save / Reset / Reload + Status -->
+        <StackPanel Grid.Row="2" Spacing="2" Margin="0,4,0,0">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="8">
                 <Button Classes="SaveButton"
                         Content="Save"
@@ -317,9 +276,9 @@
             </StackPanel>
 
             <TextBlock Text="{Binding StatusMessage}"
-                       FontSize="13" Foreground="LightGray"
+                       FontSize="16" Foreground="LightGray"
                        HorizontalAlignment="Center"
-                       Margin="0,2"/>
+                       Margin="0,1"/>
         </StackPanel>
     </Grid>
 </UserControl>

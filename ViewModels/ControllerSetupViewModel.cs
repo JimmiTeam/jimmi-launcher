@@ -54,7 +54,8 @@ public partial class ControllerSetupViewModel : MenuViewModelBase, IDisposable
 
     private readonly Action<string>? _onNavigateRequested;
 
-    private static readonly string CfgPath = Path.Combine(Directory.GetCurrentDirectory(), "mupen64plus.cfg");
+    // private static readonly string CfgPath = Path.Combine(Directory.GetCurrentDirectory(), "mupen64plus.cfg");
+    private static readonly string CfgPath = "E:/Jimmi/JimmiLauncher/mupen64plus.cfg";
 
     public ObservableCollection<string> ControllerPorts { get; } = new()
     {
@@ -124,7 +125,7 @@ public partial class ControllerSetupViewModel : MenuViewModelBase, IDisposable
     [NotifyPropertyChangedFor(nameof(RightStickCanvasY))]
     private double _rightStickY = 0.5;
 
-    private const double StickCanvasSize = 120.0;
+    private const double StickCanvasSize = 100.0;
     private const double DotRadius = 6.0;
 
     public double LeftStickCanvasX => LeftStickX * (StickCanvasSize - DotRadius * 2);
@@ -153,8 +154,6 @@ public partial class ControllerSetupViewModel : MenuViewModelBase, IDisposable
         ("C Button U", "C-Up"),
         ("R Trig", "R"),
         ("L Trig", "L"),
-        ("Mempak switch", "Mempak Switch"),
-        ("Rumblepak switch","Rumblepak Switch"),
         ("X Axis", "Analog X"),
         ("Y Axis", "Analog Y"),
     };
@@ -205,8 +204,6 @@ public partial class ControllerSetupViewModel : MenuViewModelBase, IDisposable
             ["C Button U"] = "axis(3-)",
             ["R Trig"] = "button(5) axis(5+)",
             ["L Trig"] = "button(4)",
-            ["Mempak switch"]  = "",
-            ["Rumblepak switch"] = "",
             ["X Axis"] = "axis(0-,0+)",
             ["Y Axis"] = "axis(1-,1+)",
         }));
@@ -227,8 +224,6 @@ public partial class ControllerSetupViewModel : MenuViewModelBase, IDisposable
             ["C Button U"] = "axis(3-)",
             ["R Trig"] = "button(5) axis(5+)",
             ["L Trig"] = "button(4)",
-            ["Mempak switch"] = "",
-            ["Rumblepak switch"] = "",
             ["X Axis"] = "axis(0-,0+)",
             ["Y Axis"] = "axis(1-,1+)",
         }));
@@ -249,8 +244,6 @@ public partial class ControllerSetupViewModel : MenuViewModelBase, IDisposable
             ["C Button U"] = "button(3)",
             ["R Trig"] = "button(5) axis(5+)",
             ["L Trig"] = "button(4)",
-            ["Mempak switch"] = "",
-            ["Rumblepak switch"] = "",
             ["X Axis"] = "axis(0-,0+)",
             ["Y Axis"] = "axis(1-,1+)",
         }));
@@ -431,6 +424,7 @@ public partial class ControllerSetupViewModel : MenuViewModelBase, IDisposable
             _gamepadService.AxisValuesUpdated += OnAxisValuesUpdated;
             _gamepadService.InputDetected += OnInputDetected;
             _gamepadService.DevicesChanged += OnDevicesChanged;
+            _gamepadService.DiagnosticMessage += OnDiagnosticMessage;
             _gamepadService.Start();
 
             Dispatcher.UIThread.InvokeAsync(RefreshDevices, DispatcherPriority.Background);
@@ -440,6 +434,15 @@ public partial class ControllerSetupViewModel : MenuViewModelBase, IDisposable
             Debug.WriteLine($"[ControllerSetup] Failed to start GamepadService: {ex.Message}");
             StatusMessage = "Gamepad service unavailable.";
         }
+    }
+
+    private void OnDiagnosticMessage(string message)
+    {
+        Debug.WriteLine($"[GamepadDiag] {message}");
+        Dispatcher.UIThread.Post(() =>
+        {
+            StatusMessage = message;
+        });
     }
 
     private void OnAxisValuesUpdated(short lx, short ly, short rx, short ry)
@@ -509,17 +512,21 @@ public partial class ControllerSetupViewModel : MenuViewModelBase, IDisposable
         DetectedDevices.Clear();
         try
         {
-            var devices = GamepadService.GetConnectedDevices();
+            var devices = _gamepadService?.GetConnectedDevicesSafe()
+                          ?? GamepadService.GetConnectedDevices();
             foreach (var (index, name) in devices)
             {
                 DetectedDevices.Add($"{index}: {name}");
             }
             if (DetectedDevices.Count > 0)
                 SelectedDetectedDeviceIndex = 0;
+
+            StatusMessage = $"Found {devices.Count} device(s).";
         }
         catch (Exception ex)
         {
             Debug.WriteLine($"[ControllerSetup] RefreshDevices error: {ex.Message}");
+            StatusMessage = $"Refresh error: {ex.Message}";
         }
     }
 
@@ -544,6 +551,7 @@ public partial class ControllerSetupViewModel : MenuViewModelBase, IDisposable
             _gamepadService.AxisValuesUpdated -= OnAxisValuesUpdated;
             _gamepadService.InputDetected -= OnInputDetected;
             _gamepadService.DevicesChanged -= OnDevicesChanged;
+            _gamepadService.DiagnosticMessage -= OnDiagnosticMessage;
             _gamepadService.Dispose();
             _gamepadService = null;
         }
