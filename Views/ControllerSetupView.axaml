@@ -8,7 +8,7 @@
 
     <UserControl.Styles>
         <Style Selector="Button.BackButton">
-            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="FontSize" Value="18"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="HorizontalContentAlignment" Value="Center"/>
             <Setter Property="Background" Value="Black"/>
@@ -19,7 +19,7 @@
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Margin" Value="0"/>
             <Setter Property="MinWidth" Value="90"/>
-            <Setter Property="Float" Value="Left"/>
+            <Setter Property="HorizontalAlignment" Value="Left"/>
         </Style>
         <Style Selector="Button.BackButton:pointerover /template/ ContentPresenter#PART_ContentPresenter">
             <Setter Property="Foreground" Value="Chocolate"/>
@@ -44,7 +44,7 @@
         </Style>
 
         <Style Selector="Button.SaveButton">
-            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontSize" Value="18"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="HorizontalContentAlignment" Value="Center"/>
             <Setter Property="Background" Value="Green"/>
@@ -59,7 +59,7 @@
         </Style>
 
         <Style Selector="Button.ClearButton">
-            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="FontSize" Value="14"/>
             <Setter Property="Background" Value="Red"/>
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="HorizontalContentAlignment" Value="Center"/>
@@ -150,7 +150,7 @@
                 <Border Classes="Section">
                     <StackPanel Spacing="4">
                         <TextBlock Classes="SectionTitle" Text="Analog Stick Settings"/>
-                        <Grid ColumnDefinitions="70,*,40" RowDefinitions="Auto,Auto">
+                        <Grid ColumnDefinitions="70,*,40" RowDefinitions="Auto,Auto,Auto">
                             <TextBlock Grid.Row="0" Grid.Column="0" Classes="FieldLabel" Text="Deadzone:"/>
                             <Slider Grid.Row="0" Grid.Column="1" Value="{Binding AnalogDeadzone}"
                                     Minimum="0" Maximum="16384" VerticalAlignment="Center"/>
@@ -161,16 +161,10 @@
                                     Minimum="1" Maximum="32768" VerticalAlignment="Center"/>
                             <TextBlock Grid.Row="1" Grid.Column="2" Text="{Binding AnalogPeak}"
                                        Foreground="Black" VerticalAlignment="Center" FontSize="11"/>
-                            <Border Width="100" Height="100" CornerRadius="50"
+                            <Border Grid.Row="2" Grid.Column="1" Width="100" Height="100" CornerRadius="50"
                                     Background="#333" BorderBrush="Orange" BorderThickness="2">
                                 <Canvas Width="100" Height="100">
-                                    <Ellipse Width="50" Height="50" Fill="#AAA"
-                                        Canvas.Left="{Binding LeftStickCanvasX}"
-                                        Canvas.Top="{Binding LeftStickCanvasY}"/>
-                                    <Ellipse Width="40" Height="40" Fill="#888"
-                                        Canvas.Left="{Binding LeftStickCanvasX}"
-                                        Canvas.Top="{Binding LeftStickCanvasY}"/>
-                                    <Ellipse Width="35" Height="35" Fill="#AAA"
+                                    <Ellipse Width="50" Height="50" Fill="#888"
                                         Canvas.Left="{Binding LeftStickCanvasX}"
                                         Canvas.Top="{Binding LeftStickCanvasY}"/>
                                 </Canvas>
@@ -180,18 +174,9 @@
                 </Border>
             </StackPanel>
 
-            <Border Grid.Column="1" Classes="Section">
+            <Border Grid.Column="1" Classes="Section" VerticalAlignment="Top">
                 <StackPanel Spacing="2">
-                    <StackPanel Orientation="Horizontal" Spacing="0">
-                        <TextBlock Classes="SectionTitle" Text="Button and Axis Mappings"
-                                   VerticalAlignment="Center"/>
-                        <Button Classes="ActionButton"
-                                Content="Cancel Bind"
-                                HorizontalAlignment="Right"
-                                Command="{Binding CancelListenCommand}"
-                                Margin="8,0,0,0"
-                                FontSize="11" Padding="6,2"/>
-                    </StackPanel>
+                    <TextBlock Classes="SectionTitle" Text="Button and Axis Mappings"/>
 
                     <ItemsControl ItemsSource="{Binding Bindings}">
                         <ItemsControl.ItemTemplate>
@@ -211,7 +196,6 @@
                                             ToolTip.Tip="Listen for input"
                                             MinWidth="34"
                                             Padding="4,1"
-                                            FontSize="11"
                                             Command="{Binding $parent[ItemsControl].((vm:ControllerSetupViewModel)DataContext).ListenForInputCommand}"
                                             CommandParameter="{Binding}"/>
                                     <Button Grid.Column="3"
@@ -225,28 +209,34 @@
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
+
+                    <Button Classes="ActionButton"
+                            Content="Cancel Bind"
+                            HorizontalAlignment="Center"
+                            Command="{Binding CancelListenCommand}"
+                            Margin="0,4,0,0"
+                            FontSize="16" Padding="6,2"/>
                 </StackPanel>
             </Border>
         </Grid>
 
-        <!-- Bottom bar: Save / Reset / Reload + Status -->
         <StackPanel Grid.Row="2" Spacing="2" Margin="0,4,0,0">
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="8">
-                <Button Classes="SaveButton"
-                        Content="Save"
-                        Command="{Binding SaveBindingsCommand}"/>
-                <Button Classes="ActionButton"
-                        Content="Reset Defaults"
-                        Command="{Binding ResetToDefaultsCommand}"/>
-                <Button Classes="ActionButton"
-                        Content="Reload from Disk"
-                        Command="{Binding ReloadBindingsCommand}"/>
-            </StackPanel>
-
             <TextBlock Text="{Binding StatusMessage}"
                        FontSize="16" Foreground="LightGray"
                        HorizontalAlignment="Center"
                        Margin="0,1"/>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="8">
+                <Button Classes="SaveButton"
+                        Content="Save"
+                        Command="{Binding SaveBindingsCommand}"/>
+                <Button Classes="ActionButton" FontSize="16" Padding="6,2"
+                        Content="Reset Defaults"
+                        Command="{Binding ResetToDefaultsCommand}"/>
+                <Button Classes="ActionButton" FontSize="16" Padding="6,2"
+                        Content="Reload from Disk"
+                        Command="{Binding ReloadBindingsCommand}"/>
+            </StackPanel>
+
         </StackPanel>
     </Grid>
 </UserControl>

@@ -28,21 +28,26 @@
             </Style.Animations>
         </Style>
         <Style Selector="Button.MenuButton">
-            <Setter Property="FontSize" Value="20"/>
+            <Setter Property="FontSize" Value="24"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="FontFamily" Value="serif"/>
             <Setter Property="HorizontalContentAlignment" Value="Center"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
             <Setter Property="Margin" Value="5"/>
-            <Setter Property="Background" Value="Orange"/>
+            <Setter Property="Background" Value="SlateGray"/>
             <Setter Property="Foreground" Value="Black"/>
+            <Setter Property="BorderBrush" Value="White"/>
+            <Setter Property="BorderThickness" Value="2"/>
             <Setter Property="Padding" Value="10,5"/>
             <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="MinWidth" Value="300"/>
-            <Setter Property="MinHeight" Value="50"/>
+            <Setter Property="MinWidth" Value="350"/>
+            <Setter Property="MinHeight" Value="70"/>
+            <Setter Property="Opacity" Value="0.8"/>
         </Style>
         <Style Selector="Button.MenuButton:pointerover /template/ ContentPresenter#PART_ContentPresenter">
-            <Setter Property="Background" Value="Chocolate"/>
+            <Setter Property="Background" Value="DarkRed"/>
+            <Setter Property="BorderBrush" Value="Red"/>
+            <Setter Property="BorderThickness" Value="2"/>
         </Style>
         <Style Selector="Button.SettingsButton">
             <Setter Property="FontSize" Value="16"/>
@@ -65,7 +70,7 @@
     </Design.DataContext>
 
     <Grid>
-        <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10">
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="10">
             <Button
                 Content="Add Game"
                 HorizontalAlignment="Left"
@@ -81,20 +86,25 @@
         </StackPanel>
 
         <StackPanel
-            Orientation="Vertical"
-            HorizontalAlignment="Center"
-            VerticalAlignment="Center"
-            Spacing="20">
+            HorizontalAlignment="Left"
+            VerticalAlignment="Top">
             <Image
                 Classes="Oscillate"
                 Source="avares://JimmiLauncher/Assets/jimmi-logo2.png"
                 HorizontalAlignment="Center"
                 VerticalAlignment="Top"
                 MaxWidth="500" />
+        </StackPanel>
+
+        <StackPanel
+            Orientation="Vertical"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Center"
+            Spacing="20" Width="700">
             <Button
                 Classes="MenuButton"
                 Content="Play Online"
-                HorizontalAlignment="Center"
+                HorizontalAlignment="Right"
                 VerticalAlignment="Center"
                 Command="{Binding NavigateToOnlineMenuCommand}" />
             <Button
@@ -106,7 +116,7 @@
             <Button
                 Classes="MenuButton"
                 Content="{Binding NavigateToReplaysButtonLabel}"
-                HorizontalAlignment="Center"
+                HorizontalAlignment="Left"
                 VerticalAlignment="Center"
                 Command="{Binding NavigateToReplayMenuCommand}" />
         </StackPanel>

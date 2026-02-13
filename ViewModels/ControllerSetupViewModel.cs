@@ -56,6 +56,7 @@ public partial class ControllerSetupViewModel : MenuViewModelBase, IDisposable
 
     // private static readonly string CfgPath = Path.Combine(Directory.GetCurrentDirectory(), "mupen64plus.cfg");
     private static readonly string CfgPath = "E:/Jimmi/JimmiLauncher/mupen64plus.cfg";
+    private static readonly string AutoCfgPath = "E:/Jimmi/JimmiLauncher/InputAutoCfg.ini";
 
     public ObservableCollection<string> ControllerPorts { get; } = new()
     {
@@ -128,10 +129,10 @@ public partial class ControllerSetupViewModel : MenuViewModelBase, IDisposable
     private const double StickCanvasSize = 100.0;
     private const double DotRadius = 50.0;
 
-    public double LeftStickCanvasX => LeftStickX; //* (StickCanvasSize - DotRadius * 2);
-    public double LeftStickCanvasY => LeftStickY; //* (StickCanvasSize - DotRadius * 2);
-    public double RightStickCanvasX => RightStickX; //* (StickCanvasSize - DotRadius * 2);
-    public double RightStickCanvasY => RightStickY; //* (StickCanvasSize - DotRadius * 2);
+    public double LeftStickCanvasX => LeftStickX * (StickCanvasSize - DotRadius);
+    public double LeftStickCanvasY => LeftStickY * (StickCanvasSize - DotRadius);
+    public double RightStickCanvasX => RightStickX * (StickCanvasSize - DotRadius);
+    public double RightStickCanvasY => RightStickY * (StickCanvasSize - DotRadius);
 
     private GamepadService? _gamepadService;
     private ControllerBinding? _listeningBinding;
@@ -154,8 +155,18 @@ public partial class ControllerSetupViewModel : MenuViewModelBase, IDisposable
         ("C Button U", "C-Up"),
         ("R Trig", "R"),
         ("L Trig", "L"),
-        ("X Axis", "Analog X"),
-        ("Y Axis", "Analog Y"),
+        ("X Axis L", "Analog Left"),
+        ("X Axis R", "Analog Right"),
+        ("Y Axis U", "Analog Up"),
+        ("Y Axis D", "Analog Down"),
+    };
+
+    private static readonly Dictionary<string, (string CfgKey, bool IsPositive)> AxisSplitMap = new()
+    {
+        ["X Axis L"] = ("X Axis", false),
+        ["X Axis R"] = ("X Axis", true),
+        ["Y Axis U"] = ("Y Axis", false),
+        ["Y Axis D"] = ("Y Axis", true),
     };
 
     public ObservableCollection<ControllerPreset> Presets { get; } = new();
@@ -195,60 +206,20 @@ public partial class ControllerSetupViewModel : MenuViewModelBase, IDisposable
             ["DPad D"] = "hat(0 Down)",
             ["DPad U"] = "hat(0 Up)",
             ["Start"] = "button(7)",
-            ["Z Trig"]  = "button(6) axis(4+)",
+            ["Z Trig"]  = "axis(2-)",
             ["B Button"] = "button(2)",
             ["A Button"] = "button(0)",
-            ["C Button R"] = "axis(2+)",
-            ["C Button L"] = "axis(2-) button(3)",
-            ["C Button D"] = "axis(3+) button(1)",
-            ["C Button U"] = "axis(3-)",
+            ["C Button R"] = "axis(3+)",
+            ["C Button L"] = "axis(3-) button(3)",
+            ["C Button D"] = "axis(4+) button(1)",
+            ["C Button U"] = "axis(4-)",
             ["R Trig"] = "button(5) axis(5+)",
             ["L Trig"] = "button(4)",
-            ["Stick R"] = "axis(1+)",
-            ["Stick L"] = "axis(1-)",
-            ["Stick D"] = "axis(0+)",
-            ["Stick U"] = "axis(0-)",
+            ["X Axis L"] = "axis(0-)",
+            ["X Axis R"] = "axis(0+)",
+            ["Y Axis U"] = "axis(1-)",
+            ["Y Axis D"] = "axis(1+)",
             
-        }));
-
-        Presets.Add(new ControllerPreset("Xbox Alt (C on Right Stick)", new Dictionary<string, string>
-        {
-            ["DPad R"] = "hat(0 Right)",
-            ["DPad L"] = "hat(0 Left)",
-            ["DPad D"] = "hat(0 Down)",
-            ["DPad U"] = "hat(0 Up)",
-            ["Start"] = "button(7)",
-            ["Z Trig"] = "axis(4+)",
-            ["B Button"] = "button(2)",
-            ["A Button"] = "button(0)",
-            ["C Button R"] = "axis(2+)",
-            ["C Button L"] = "axis(2-)",
-            ["C Button D"] = "axis(3+)",
-            ["C Button U"] = "axis(3-)",
-            ["R Trig"] = "button(5) axis(5+)",
-            ["L Trig"] = "button(4)",
-            ["X Axis"] = "axis(0-,0+)",
-            ["Y Axis"] = "axis(1-,1+)",
-        }));
-
-        Presets.Add(new ControllerPreset("Xbox Face Buttons as C", new Dictionary<string, string>
-        {
-            ["DPad R"] = "hat(0 Right)",
-            ["DPad L"] = "hat(0 Left)",
-            ["DPad D"] = "hat(0 Down)",
-            ["DPad U"] = "hat(0 Up)",
-            ["Start"] = "button(7)",
-            ["Z Trig"] = "axis(4+)",
-            ["B Button"] = "button(6)",
-            ["A Button"] = "button(0)",
-            ["C Button R"] = "button(1)",
-            ["C Button L"] = "button(2)",
-            ["C Button D"] = "button(0)",
-            ["C Button U"] = "button(3)",
-            ["R Trig"] = "button(5) axis(5+)",
-            ["L Trig"] = "button(4)",
-            ["X Axis"] = "axis(0-,0+)",
-            ["Y Axis"] = "axis(1-,1+)",
         }));
 
         Presets.Add(new ControllerPreset("Clear All", new Dictionary<string, string>(
@@ -266,8 +237,8 @@ public partial class ControllerSetupViewModel : MenuViewModelBase, IDisposable
 
         try
         {
-            var lines = File.ReadAllLines(CfgPath);
-            var sectionData = ParseSection(lines, CurrentSectionName);
+            var cfgLines = File.ReadAllLines(CfgPath);
+            var sectionData = ParseSection(cfgLines, CurrentSectionName);
 
             IsPluggedIn = GetBool(sectionData, "plugged", true);
 
@@ -289,9 +260,21 @@ public partial class ControllerSetupViewModel : MenuViewModelBase, IDisposable
                 SelectedExpansionPakIndex = idx >= 0 ? idx : 1;
             }
 
+            var bindingData = File.Exists(AutoCfgPath)
+                ? ParseAutoCfgXInputSection(File.ReadAllLines(AutoCfgPath))
+                : sectionData;
+
             foreach (var binding in Bindings)
             {
-                binding.BoundValue = GetString(sectionData, binding.N64InputName, "");
+                if (AxisSplitMap.TryGetValue(binding.N64InputName, out var splitInfo))
+                {
+                    var combined = GetString(bindingData, splitInfo.CfgKey, "");
+                    binding.BoundValue = SplitAxisValue(combined, splitInfo.IsPositive);
+                }
+                else
+                {
+                    binding.BoundValue = GetString(bindingData, binding.N64InputName, "");
+                }
             }
 
             StatusMessage = $"Loaded {CurrentSectionName}";
@@ -332,9 +315,32 @@ public partial class ControllerSetupViewModel : MenuViewModelBase, IDisposable
             newValues["AnalogPeak"] = $"\"{AnalogPeak},{AnalogPeak}\"";
             newValues["mode"] = "2";
 
+            var axisParts = new Dictionary<string, string[]>(StringComparer.OrdinalIgnoreCase);
             foreach (var binding in Bindings)
             {
-                newValues[binding.N64InputName] = $"\"{binding.BoundValue}\"";
+                if (AxisSplitMap.TryGetValue(binding.N64InputName, out var splitInfo))
+                {
+                    if (!axisParts.ContainsKey(splitInfo.CfgKey))
+                        axisParts[splitInfo.CfgKey] = new string[2];
+
+                    axisParts[splitInfo.CfgKey][splitInfo.IsPositive ? 1 : 0] = binding.BoundValue;
+                }
+                else
+                {
+                    newValues[binding.N64InputName] = $"\"{binding.BoundValue}\"";
+                }
+            }
+
+            foreach (var (cfgKey, parts) in axisParts)
+            {
+                var neg = parts[0] ?? "";
+                var pos = parts[1] ?? "";
+                var combined = (neg, pos) switch
+                {
+                    ("", "") => "",
+                    _ => $"{neg},{pos}"
+                };
+                newValues[cfgKey] = $"\"{combined}\"";
             }
 
             for (int i = start + 1; i <= end && i < lines.Count; i++)
@@ -355,6 +361,9 @@ public partial class ControllerSetupViewModel : MenuViewModelBase, IDisposable
             }
 
             File.WriteAllLines(CfgPath, lines);
+
+            SaveToAutoCfg(newValues);
+
             StatusMessage = $"Save successful.";
         }
         catch (Exception ex)
@@ -362,6 +371,72 @@ public partial class ControllerSetupViewModel : MenuViewModelBase, IDisposable
             StatusMessage = $"Error saving config: {ex.Message}";
             Console.WriteLine($"ControllerSetup SaveBindings error: {ex}");
         }
+    }
+
+    private static void SaveToAutoCfg(Dictionary<string, string> quotedValues)
+    {
+        if (!File.Exists(AutoCfgPath)) return;
+
+        var lines = File.ReadAllLines(AutoCfgPath).ToList();
+
+        int sectionStart = -1;
+        for (int i = 0; i < lines.Count; i++)
+        {
+            var trimmed = lines[i].Trim();
+            if (trimmed.StartsWith("[XInput:", StringComparison.OrdinalIgnoreCase))
+            {
+                sectionStart = i;
+                break;
+            }
+        }
+        if (sectionStart < 0) return;
+
+        int dataStart = sectionStart;
+        for (int i = sectionStart; i < lines.Count; i++)
+        {
+            var trimmed = lines[i].Trim();
+            if (trimmed.StartsWith('[') && trimmed.EndsWith(']'))
+            {
+                dataStart = i + 1;
+                continue;
+            }
+            break;
+        }
+
+        int sectionEnd = lines.Count - 1;
+        for (int i = dataStart; i < lines.Count; i++)
+        {
+            var trimmed = lines[i].Trim();
+            if (trimmed.StartsWith('[') && trimmed.EndsWith(']'))
+            {
+                sectionEnd = i - 1;
+                break;
+            }
+        }
+
+        var unquoted = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        foreach (var (key, val) in quotedValues)
+        {
+            unquoted[key] = val.Trim('"');
+        }
+
+        for (int i = dataStart; i <= sectionEnd && i < lines.Count; i++)
+        {
+            var line = lines[i];
+            if (string.IsNullOrWhiteSpace(line) || line.TrimStart().StartsWith(';'))
+                continue;
+
+            var eqIdx = line.IndexOf('=');
+            if (eqIdx < 0) continue;
+
+            var key = line.Substring(0, eqIdx).Trim();
+            if (unquoted.TryGetValue(key, out var newVal))
+            {
+                lines[i] = $"{key} = {newVal}";
+            }
+        }
+
+        File.WriteAllLines(AutoCfgPath, lines);
     }
 
 
@@ -560,6 +635,49 @@ public partial class ControllerSetupViewModel : MenuViewModelBase, IDisposable
         }
     }
 
+    private static Dictionary<string, string> ParseAutoCfgXInputSection(string[] lines)
+    {
+        var result = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+
+        int dataStart = -1;
+        for (int i = 0; i < lines.Length; i++)
+        {
+            var trimmed = lines[i].Trim();
+            if (trimmed.StartsWith("[XInput:", StringComparison.OrdinalIgnoreCase))
+            {
+                for (int j = i; j < lines.Length; j++)
+                {
+                    var t = lines[j].Trim();
+                    if (t.StartsWith('[') && t.EndsWith(']'))
+                        continue;
+                    dataStart = j;
+                    break;
+                }
+                break;
+            }
+        }
+
+        if (dataStart < 0) return result;
+
+        for (int i = dataStart; i < lines.Length; i++)
+        {
+            var trimmed = lines[i].Trim();
+            if (trimmed.StartsWith('[') && trimmed.EndsWith(']'))
+                break;
+            if (string.IsNullOrWhiteSpace(trimmed) || trimmed.StartsWith(';'))
+                continue;
+
+            var eqIdx = trimmed.IndexOf('=');
+            if (eqIdx < 0) continue;
+
+            var key = trimmed[..eqIdx].Trim();
+            var val = trimmed[(eqIdx + 1)..].Trim().Trim('"');
+            result[key] = val;
+        }
+
+        return result;
+    }
+
     private static Dictionary<string, string> ParseSection(string[] lines, string sectionName)
     {
         var result = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
@@ -624,6 +742,22 @@ public partial class ControllerSetupViewModel : MenuViewModelBase, IDisposable
             end = lines.Count - 1;
 
         return (start, end);
+    }
+
+    private static string SplitAxisValue(string combined, bool isPositive)
+    {
+        if (string.IsNullOrWhiteSpace(combined))
+            return "";
+
+        var commaIdx = combined.IndexOf(',');
+        if (commaIdx < 0)
+        {
+            return isPositive ? "" : combined;
+        }
+
+        return isPositive
+            ? combined[(commaIdx + 1)..].Trim()
+            : combined[..commaIdx].Trim();
     }
 
     private static string GetString(Dictionary<string, string> data, string key, string defaultValue)
