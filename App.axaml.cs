@@ -36,7 +36,6 @@ public partial class App : Application
             System.Diagnostics.Debug.WriteLine($"Failed to extract thumbnails: {ex.Message}");
         }
 
-        // Initialize file watcher to run in background
         // InitializeFileWatcher();
 
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)

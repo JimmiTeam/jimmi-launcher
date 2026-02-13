@@ -21,6 +21,13 @@ namespace JimmiLauncher
         public string GameId { get; set; } = string.Empty;
     }
 
+    public class FlagEntry
+    {
+        public int Id { get; set; }
+        public string Key { get; set; } = string.Empty;
+        public bool Value { get; set; }
+    }
+
     public static class DatabaseHandler
     {
         private static LiteDatabase? _database;
@@ -39,6 +46,17 @@ namespace JimmiLauncher
 
             var gamesCollection = _database.GetCollection<GameRom>("GameRoms");
             gamesCollection.EnsureIndex(x => x.GamePath);
+
+            var raphnetEntry = _database.GetCollection<FlagEntry>("Flags").FindOne(x => x.Key == "UsingRaphnet");
+            if (raphnetEntry != null)
+            {
+                Globals.UsingRaphnet = raphnetEntry.Value;
+            }
+            else
+            {
+                Globals.UsingRaphnet = false;
+                _database.GetCollection<FlagEntry>("Flags").Insert(new FlagEntry { Key = "UsingRaphnet", Value = false });
+            }
 
             var defaultPaths = new List<(string Type, string Value)>
             {
@@ -85,6 +103,23 @@ namespace JimmiLauncher
                 existing.GameId = id;
                 collection.Update(existing);
             }
+        }
+
+        public static void UpdateRaphnetUsage(bool usingRaphnet)
+        {
+            if (_database == null) return;
+            var collection = _database.GetCollection<FlagEntry>("Flags");
+            var entry = collection.FindOne(x => x.Key == "UsingRaphnet");
+            if (entry != null)
+            {
+                entry.Value = usingRaphnet;
+                collection.Update(entry);
+            }
+            else
+            {
+                collection.Insert(new FlagEntry { Key = "UsingRaphnet", Value = usingRaphnet });
+            }
+            Globals.UsingRaphnet = usingRaphnet;
         }
 
         public static List<GameRom> GetGames()

@@ -19,7 +19,6 @@
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Margin" Value="0"/>
             <Setter Property="MinWidth" Value="90"/>
-            <Setter Property="HorizontalAlignment" Value="Left"/>
         </Style>
         <Style Selector="Button.BackButton:pointerover /template/ ContentPresenter#PART_ContentPresenter">
             <Setter Property="Foreground" Value="Chocolate"/>
@@ -29,12 +28,12 @@
         </Style>
 
         <Style Selector="Button.ActionButton">
-            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontSize" Value="18"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="HorizontalContentAlignment" Value="Center"/>
             <Setter Property="Background" Value="SlateGray"/>
             <Setter Property="Foreground" Value="Black"/>
-            <Setter Property="Padding" Value="8,3"/>
+            <Setter Property="Padding" Value="10,5"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Margin" Value="2"/>
             <Setter Property="MinWidth" Value="60"/>
@@ -75,7 +74,7 @@
         <Style Selector="Border.Section">
             <Setter Property="CornerRadius" Value="4"/>
             <Setter Property="Padding" Value="8,6"/>
-            <Setter Property="Background" Value="Orange"/>
+            <Setter Property="Background" Value="DarkOrange"/>
             <Setter Property="BorderBrush" Value="Chocolate"/>
             <Setter Property="BorderThickness" Value="2"/>
             <Setter Property="Margin" Value="0,3"/>
@@ -113,35 +112,42 @@
 
     <Grid RowDefinitions="Auto,*,Auto" Margin="10,6">
 
-        <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="12" Margin="0,0,0,4" HorizontalAlignment="Center">
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="12" Margin="0,0,0,4" HorizontalAlignment="Left">
             <Button Classes="BackButton"
                     Content="◀◀ Back"
                     Command="{Binding NavigateToSettingsCommand}"/>
+        </StackPanel>
+
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="12" Margin="0,0,0,4" HorizontalAlignment="Center">
             <TextBlock Text="Controller Setup"
                        FontSize="20" FontWeight="Bold"
                        Foreground="Orange" VerticalAlignment="Center"
                        HorizontalAlignment="Center"/>
         </StackPanel>
 
-        <Grid Grid.Row="1" ColumnDefinitions="*,*" Margin="0,2">
-
+        <Grid Grid.Row="2" ColumnDefinitions="*,*" Margin="0,2">
             <StackPanel Grid.Column="0" Spacing="0" Margin="0,0,6,0">
 
                 <Border Classes="Section">
                     <StackPanel Spacing="4">
                         <TextBlock Classes="SectionTitle" Text="Device"/>
                         <Grid ColumnDefinitions="80,*" RowDefinitions="Auto,Auto,Auto" Margin="0" >
+                            <!-- <TextBlock Grid.Row="0" Grid.Column="0" Classes="FieldLabel" Text="Name:"/>
+                            <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding DeviceName}" Margin="0,1"/> -->
                             <TextBlock Grid.Row="0" Grid.Column="0" Classes="FieldLabel" Text="Name:"/>
-                            <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding DeviceName}" Margin="0,1"/>
-
+                            <CheckBox Grid.Row="0" Grid.Column="1"
+                                    Text="Use Raphnet's Raw Input Plugin (must have compatible adapter)"
+                                    IsChecked="{Binding UsingRaphnet}" />
+                            
                             <TextBlock Grid.Row="2" Grid.Column="0" Classes="FieldLabel" Text="Detected:"/>
                             <StackPanel Grid.Row="2" Grid.Column="1" Orientation="Horizontal" Spacing="4" Margin="0,1">
                                 <ComboBox ItemsSource="{Binding DetectedDevices}"
                                           SelectedIndex="{Binding SelectedDetectedDeviceIndex}"
-                                          MinWidth="150"/>
-                                <Button Classes="ActionButton"
+                                          MinWidth="150"
+                                          IsEnabled="{Binding !UsingRaphnet}"/>
+                                <!-- <Button Classes="ActionButton"
                                         Content="Refresh"
-                                        Command="{Binding RefreshDevicesCommand}"/>
+                                        Command="{Binding RefreshDevicesCommand}"/> -->
                             </StackPanel>
                         </Grid>
                     </StackPanel>
@@ -150,7 +156,8 @@
                 <Border Classes="Section">
                     <StackPanel Spacing="4">
                         <TextBlock Classes="SectionTitle" Text="Analog Stick Settings"/>
-                        <Grid ColumnDefinitions="70,*,40" RowDefinitions="Auto,Auto,Auto">
+                        <Grid ColumnDefinitions="70,*,40" RowDefinitions="Auto,Auto,Auto"
+                                IsEnabled="{Binding !UsingRaphnet}">
                             <TextBlock Grid.Row="0" Grid.Column="0" Classes="FieldLabel" Text="Deadzone:"/>
                             <Slider Grid.Row="0" Grid.Column="1" Value="{Binding AnalogDeadzone}"
                                     Minimum="0" Maximum="16384" VerticalAlignment="Center"/>
@@ -175,7 +182,7 @@
             </StackPanel>
 
             <Border Grid.Column="1" Classes="Section" VerticalAlignment="Top">
-                <StackPanel Spacing="2">
+                <StackPanel Spacing="2" IsEnabled="{Binding !UsingRaphnet}">
                     <TextBlock Classes="SectionTitle" Text="Button and Axis Mappings"/>
 
                     <ItemsControl ItemsSource="{Binding Bindings}">
@@ -220,7 +227,8 @@
             </Border>
         </Grid>
 
-        <StackPanel Grid.Row="2" Spacing="2" Margin="0,4,0,0">
+        <StackPanel Grid.Row="3" Spacing="2" Margin="0,4,0,0"
+                IsEnabled="{Binding !UsingRaphnet}">
             <TextBlock Text="{Binding StatusMessage}"
                        FontSize="16" Foreground="LightGray"
                        HorizontalAlignment="Center"
@@ -229,14 +237,13 @@
                 <Button Classes="SaveButton"
                         Content="Save"
                         Command="{Binding SaveBindingsCommand}"/>
-                <Button Classes="ActionButton" FontSize="16" Padding="6,2"
+                <Button Classes="ActionButton"
                         Content="Reset Defaults"
                         Command="{Binding ResetToDefaultsCommand}"/>
-                <Button Classes="ActionButton" FontSize="16" Padding="6,2"
-                        Content="Reload from Disk"
+                <Button Classes="ActionButton"
+                        Content="Reload from Config File"
                         Command="{Binding ReloadBindingsCommand}"/>
             </StackPanel>
-
         </StackPanel>
     </Grid>
 </UserControl>

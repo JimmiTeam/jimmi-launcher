@@ -70,6 +70,14 @@ public partial class ControllerSetupViewModel : MenuViewModelBase, IDisposable
     [NotifyPropertyChangedFor(nameof(IsPluggedIn))]
     private int _selectedPortIndex;
 
+    
+    [ObservableProperty]
+    private bool _usingRaphnet = Globals.UsingRaphnet;
+    partial void OnUsingRaphnetChanged(bool value)
+    {
+        DatabaseHandler.UpdateRaphnetUsage(value);
+    }
+
     partial void OnSelectedPortIndexChanged(int value)
     {
         LoadPortBindings();
@@ -609,6 +617,13 @@ public partial class ControllerSetupViewModel : MenuViewModelBase, IDisposable
     }
 
     [RelayCommand]
+    private void ToggleRaphnet()
+    {
+        UsingRaphnet = !UsingRaphnet;
+        Globals.UsingRaphnet = UsingRaphnet;
+    }
+
+    [RelayCommand]
     private void NavigateToMain()
     {
         Dispose();
@@ -759,6 +774,8 @@ public partial class ControllerSetupViewModel : MenuViewModelBase, IDisposable
             ? combined[(commaIdx + 1)..].Trim()
             : combined[..commaIdx].Trim();
     }
+
+    
 
     private static string GetString(Dictionary<string, string> data, string key, string defaultValue)
         => data.TryGetValue(key, out var v) ? v : defaultValue;
