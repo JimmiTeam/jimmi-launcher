@@ -29,7 +29,6 @@
             <Setter Property="CornerRadius" Value="5"/>
             <Setter Property="Padding" Value="10"/>
             <Setter Property="Background" Value="Orange"/>
-            <Setter Property="BorderBrush" Value="Chocolate"/>
             <Setter Property="MinWidth" Value="500"/>
         </Style>
         <Style Selector="Button.BackButton">
@@ -122,14 +121,14 @@
 
             <TextBlock Text="{Binding StatusMessage}" HorizontalAlignment="Center" Foreground="White" TextWrapping="Wrap" MaxWidth="400"/>
 
-            <Border VerticalAlignment="Center">
+            <Border VerticalAlignment="Center" BorderBrush="Chocolate" BorderThickness="2">
                 <StackPanel Spacing="10">
                     <TextBlock Text="Unranked" FontSize="18" HorizontalAlignment="Center" FontWeight="Bold"/>
                     <Button Content="Find a Match" Command="{Binding FindMatchCommand}" HorizontalAlignment="Center" IsEnabled="{Binding !IsBusy}"/>
                 </StackPanel>
             </Border>
 
-            <Border VerticalAlignment="Center">
+            <Border VerticalAlignment="Center" BorderBrush="Chocolate" BorderThickness="2">
                 <StackPanel Spacing="10">
                     <TextBlock Text="Host a Game" FontSize="18" HorizontalAlignment="Center" FontWeight="Bold"/>
                     <Button Content="Create Room" Command="{Binding CreateRoomCommand}" HorizontalAlignment="Center" IsEnabled="{Binding !IsBusy}"/>
@@ -140,7 +139,7 @@
                 </StackPanel>
             </Border>
 
-            <Border VerticalAlignment="Center">
+            <Border VerticalAlignment="Center" BorderBrush="Chocolate" BorderThickness="2">
                 <StackPanel Spacing="10">
                     <TextBlock Text="Join a Game" FontSize="18" HorizontalAlignment="Center" FontWeight="Bold"/>
                     <StackPanel Orientation="Horizontal" Spacing="10" HorizontalAlignment="Center">
