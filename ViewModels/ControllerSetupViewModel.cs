@@ -55,8 +55,10 @@ public partial class ControllerSetupViewModel : MenuViewModelBase, IDisposable
     private readonly Action<string>? _onNavigateRequested;
 
     // private static readonly string CfgPath = Path.Combine(Directory.GetCurrentDirectory(), "mupen64plus.cfg");
-    private static readonly string CfgPath = "E:/Jimmi/JimmiLauncher/mupen64plus.cfg";
-    private static readonly string AutoCfgPath = "E:/Jimmi/JimmiLauncher/InputAutoCfg.ini";
+    // private static readonly string CfgPath = "E:/Jimmi/JimmiLauncher/mupen64plus.cfg";
+    // private static readonly string AutoCfgPath = "E:/Jimmi/JimmiLauncher/InputAutoCfg.ini";
+    private static readonly string CfgPath = "./mupen/mupen64plus.cfg";
+    private static readonly string AutoCfgPath = "./mupen/InputAutoCfg.ini";
 
     public ObservableCollection<string> ControllerPorts { get; } = new()
     {

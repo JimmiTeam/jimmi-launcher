@@ -121,12 +121,12 @@
 
             <TextBlock Text="{Binding StatusMessage}" HorizontalAlignment="Center" Foreground="White" TextWrapping="Wrap" MaxWidth="400"/>
 
-            <Border VerticalAlignment="Center" BorderBrush="Chocolate" BorderThickness="2">
+            <!-- <Border VerticalAlignment="Center" BorderBrush="Chocolate" BorderThickness="2">
                 <StackPanel Spacing="10">
                     <TextBlock Text="Unranked" FontSize="18" HorizontalAlignment="Center" FontWeight="Bold"/>
                     <Button Content="Find a Match" Command="{Binding FindMatchCommand}" HorizontalAlignment="Center" IsEnabled="{Binding !IsBusy}"/>
                 </StackPanel>
-            </Border>
+            </Border> -->
 
             <Border VerticalAlignment="Center" BorderBrush="Chocolate" BorderThickness="2">
                 <StackPanel Spacing="10">

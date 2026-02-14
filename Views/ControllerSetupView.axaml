@@ -81,7 +81,7 @@
         </Style>
 
         <Style Selector="TextBlock.SectionTitle">
-            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontSize" Value="14"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="Foreground" Value="Black"/>
             <Setter Property="Margin" Value="0,0,0,3"/>
@@ -131,13 +131,13 @@
                 <Border Classes="Section">
                     <StackPanel Spacing="4">
                         <TextBlock Classes="SectionTitle" Text="Device"/>
+                        <CheckBox
+                            Content="Use Raphnet's raw input plugin (must have compatible adapter)"
+                            IsChecked="{Binding UsingRaphnet}" />
                         <Grid ColumnDefinitions="80,*" RowDefinitions="Auto,Auto,Auto" Margin="0" >
                             <!-- <TextBlock Grid.Row="0" Grid.Column="0" Classes="FieldLabel" Text="Name:"/>
                             <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding DeviceName}" Margin="0,1"/> -->
-                            <TextBlock Grid.Row="0" Grid.Column="0" Classes="FieldLabel" Text="Name:"/>
-                            <CheckBox Grid.Row="0" Grid.Column="1"
-                                    Text="Use Raphnet's Raw Input Plugin (must have compatible adapter)"
-                                    IsChecked="{Binding UsingRaphnet}" />
+                            <!-- <TextBlock Grid.Row="0" Grid.Column="0" Classes="FieldLabel" Text="Name:"/> -->
                             
                             <TextBlock Grid.Row="2" Grid.Column="0" Classes="FieldLabel" Text="Detected:"/>
                             <StackPanel Grid.Row="2" Grid.Column="1" Orientation="Horizontal" Spacing="4" Margin="0,1">
@@ -179,6 +179,25 @@
                         </Grid>
                     </StackPanel>
                 </Border>
+                <StackPanel Spacing="2" Margin="0,4,0,0"
+                    IsEnabled="{Binding !UsingRaphnet}">
+                    <TextBlock Text="{Binding StatusMessage}"
+                            FontSize="16" Foreground="LightGray"
+                            HorizontalAlignment="Center"
+                            Margin="0,1"/>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="8">
+                        <Button Classes="SaveButton"
+                                Content="Save"
+                                Command="{Binding SaveBindingsCommand}"/>
+                        <Button Classes="ActionButton"
+                                Content="Reset Defaults"
+                                Command="{Binding ResetToDefaultsCommand}"/>
+                    </StackPanel>
+                    <Button Classes="ActionButton"
+                        Content="Reload from Config File"
+                        Command="{Binding ReloadBindingsCommand}"
+                        HorizontalAlignment="Center"/>
+                </StackPanel>
             </StackPanel>
 
             <Border Grid.Column="1" Classes="Section" VerticalAlignment="Top">
@@ -226,24 +245,5 @@
                 </StackPanel>
             </Border>
         </Grid>
-
-        <StackPanel Grid.Row="3" Spacing="2" Margin="0,4,0,0"
-                IsEnabled="{Binding !UsingRaphnet}">
-            <TextBlock Text="{Binding StatusMessage}"
-                       FontSize="16" Foreground="LightGray"
-                       HorizontalAlignment="Center"
-                       Margin="0,1"/>
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="8">
-                <Button Classes="SaveButton"
-                        Content="Save"
-                        Command="{Binding SaveBindingsCommand}"/>
-                <Button Classes="ActionButton"
-                        Content="Reset Defaults"
-                        Command="{Binding ResetToDefaultsCommand}"/>
-                <Button Classes="ActionButton"
-                        Content="Reload from Config File"
-                        Command="{Binding ReloadBindingsCommand}"/>
-            </StackPanel>
-        </StackPanel>
     </Grid>
 </UserControl>
