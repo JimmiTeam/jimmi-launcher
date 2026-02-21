@@ -311,7 +311,7 @@ public partial class ControllerSetupViewModel : MenuViewModelBase, IDisposable
             var (start, end) = FindSectionRange(lines, CurrentSectionName);
             if (start < 0)
             {
-                StatusMessage = $"Section [{CurrentSectionName}] not found in cfg.";
+                // StatusMessage = $"Section [{CurrentSectionName}] not found in cfg.";
                 return;
             }
 

@@ -92,9 +92,9 @@
                 Content="◀◀ Back"
                 Command="{Binding NavigateToMainCommand}"/>
 
-            <CheckBox Content="Enable Replays" 
+            <!-- <CheckBox Content="Enable Replays" 
                 IsChecked="{Binding IsReplaysEnabled}" 
-                Foreground="Orange"/>
+                Foreground="Orange"/> -->
         </StackPanel>
 
         <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="20" >

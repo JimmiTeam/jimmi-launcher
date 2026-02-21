@@ -89,6 +89,10 @@
             <Setter Property="FontSize" Value="16"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="Padding" Value="5"/>
+            <Setter Property="Foreground" Value="Black"/>
+        </Style>
+        <Style Selector="TextBlock">
+            <Setter Property="Foreground" Value="Black"/>
         </Style>
     </UserControl.Styles>
 
@@ -104,8 +108,8 @@
                 Content="◀◀ Back"
                 Command="{Binding NavigateToMainCommand}"/>
 
-            <CheckBox Content="Enable Replays" 
-                IsChecked="{Binding IsReplaysEnabled}" />
+            <!-- <CheckBox Content="Enable Replays" 
+                IsChecked="{Binding IsReplaysEnabled}" /> -->
 
             <ComboBox ItemsSource="{Binding AvailableGames}" SelectedItem="{Binding SelectedGame, Mode=TwoWay}" MinWidth="300" HorizontalAlignment="Center">
                  <ComboBox.ItemTemplate>

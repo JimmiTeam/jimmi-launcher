@@ -106,6 +106,14 @@ public partial class OnlineMenuViewModel : MenuViewModelBase
                 arguments = $"--replays {Globals.ReplaysFolderPath} " + arguments;
             }
 
+            if (Globals.UsingRaphnet)
+            {
+                arguments = "--input mupen64plus-input-raphnetraw.dll " + arguments;
+            }
+            else {
+                arguments = "--input mupen64plus-input-sdl.dll " + arguments;
+            }   
+
             var processStartInfo = new ProcessStartInfo
             {
                 FileName = Globals.MupenExecutablePath,

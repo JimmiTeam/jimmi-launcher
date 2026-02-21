@@ -29,14 +29,20 @@ public partial class OfflineMenuViewModel : MenuViewModelBase
     {
         try
         {      
-            // var folder = "../mupen64plus-ui-console/projects/msvc/x64/Release";
             var folder = "./mupen";
             var arguments = $"--configdir {folder} --datadir {folder} --plugindir {folder} {gamePath}";
             
-            // The original code prepended it.
             if (Globals.ReplaysEnabled)
             {
                 arguments = $"--replays {Globals.ReplaysFolderPath} " + arguments;
+            }
+            if (Globals.UsingRaphnet)
+            {
+                arguments = "--input mupen64plus-input-raphnetraw.dll " + arguments;
+            }
+            else
+            {
+                arguments = "--input mupen64plus-input-sdl.dll " + arguments;
             }
 
             var processStartInfo = new ProcessStartInfo

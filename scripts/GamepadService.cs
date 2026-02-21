@@ -166,10 +166,10 @@ public sealed unsafe class GamepadService : IDisposable
                 }
             }
 
-            if (_openGamepads.Count == 0 && _openJoysticks.Count == 0)
-            {
-                Log("WARNING: No devices could be opened. Inputs will not work.");
-            }
+            // if (_openGamepads.Count == 0 && _openJoysticks.Count == 0)
+            // {
+            //     Log("WARNING: No devices could be opened. Inputs will not work.");
+            // }
 
             int frameCount = 0;
             while (_running)
