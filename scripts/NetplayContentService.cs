@@ -11,7 +11,7 @@ namespace JimmiLauncher;
 
 public sealed class NetplayContentService
 {
-    private static readonly string _userApppdataFolder = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+    private static readonly string _userAppdataFolder = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
 
     private readonly Uri _contentBaseUrl;
     private readonly string _coreBuildId;
@@ -50,8 +50,8 @@ public sealed class NetplayContentService
         
         var metadataUrl = new Uri(_contentBaseUrl, $"{manifestBundle.Metadata.Key}");
         var savestateUrl = new Uri(_contentBaseUrl, $"{manifestBundle.Savestate.Key}");
-        var metadataLocalPath = Path.Combine(_userApppdataFolder, "Jimmi", "NetplayContent", manifestBundle.Metadata.Key);
-        var savestateLocalPath = Path.Combine(_userApppdataFolder, "Jimmi", "NetplayContent", manifestBundle.Savestate.Key);
+        var metadataLocalPath = Path.Combine(_userAppdataFolder, "Jimmi", "NetplayContent", manifestBundle.Metadata.Key);
+        var savestateLocalPath = Path.Combine(_userAppdataFolder, "Jimmi", "NetplayContent", manifestBundle.Savestate.Key);
         Directory.CreateDirectory(Path.GetDirectoryName(metadataLocalPath)!);
         Directory.CreateDirectory(Path.GetDirectoryName(savestateLocalPath)!);
 
@@ -117,8 +117,8 @@ public sealed class NetplayContentService
 
 
         // 3) Ensure the two files by key + sha256 (download if needed)
-        var metadataLocalPath = Path.Combine(_userApppdataFolder, "Jimmi", "NetplayContent", req.Metadata.Key);
-        var savestateLocalPath = Path.Combine(_userApppdataFolder, "Jimmi", "NetplayContent", req.Savestate.Key);
+        var metadataLocalPath = Path.Combine(_userAppdataFolder, "Jimmi", "NetplayContent", req.Metadata.Key);
+        var savestateLocalPath = Path.Combine(_userAppdataFolder, "Jimmi", "NetplayContent", req.Savestate.Key);
         Directory.CreateDirectory(Path.GetDirectoryName(metadataLocalPath)!);
         Directory.CreateDirectory(Path.GetDirectoryName(savestateLocalPath)!);
         
@@ -155,6 +155,51 @@ public sealed class NetplayContentService
                 Sha256 = req.Savestate.Sha256
             }
         };
+    }
+
+    public async Task DownloadAllManifestContentAsync()
+    {
+        var manifestJsonUrl = new Uri(_contentBaseUrl, $"content/manifest.json");
+        var manifestSigUrl = new Uri(_contentBaseUrl, $"content/manifest.sig");
+
+        using var httpClient = new HttpClient();
+        var manifestJsonBytes = await httpClient.GetByteArrayAsync(manifestJsonUrl);
+        var manifestSigBase64 = await httpClient.GetStringAsync(manifestSigUrl);
+
+        ManifestVerifier.VerifyOrThrow(manifestJsonBytes, manifestSigBase64, _publicKeyPem);
+        var manifest = System.Text.Json.JsonSerializer.Deserialize<ContentManifest>(manifestJsonBytes);
+        if (manifest == null)
+            throw new InvalidOperationException("Failed to deserialize content manifest.");
+        if (manifest.Bundles.Length == 0)
+            throw new InvalidOperationException("Content manifest contains no bundles.");
+
+        foreach (var bundle in manifest.Bundles)
+        {
+            await DownloadContentFileAsync(httpClient, bundle.Metadata.Key, bundle.Metadata.Sha256);
+            await DownloadContentFileAsync(httpClient, bundle.Savestate.Key, bundle.Savestate.Sha256);
+        }
+    }
+
+    private async Task DownloadContentFileAsync(HttpClient httpClient, string fileKey, string expectedSha256)
+    {
+        var localPath = Path.Combine(_userAppdataFolder, "Jimmi", "NetplayContent", fileKey);
+        Directory.CreateDirectory(Path.GetDirectoryName(localPath)!);
+
+        if (File.Exists(localPath) && VerifyFileSha256(localPath, expectedSha256))
+        {
+            Console.WriteLine($"File already cached: {fileKey}");
+            return;
+        }
+
+        Console.WriteLine($"Downloading content file from S3: {fileKey} to {localPath}");
+        var fileUrl = new Uri(_contentBaseUrl, $"content/{fileKey}");
+        using var response = await httpClient.GetAsync(fileUrl);
+        response.EnsureSuccessStatusCode();
+        using var fs = new FileStream(localPath, FileMode.Create, FileAccess.Write, FileShare.None);
+        await response.Content.CopyToAsync(fs);
+
+        if (!VerifyFileSha256(localPath, expectedSha256))
+            throw new InvalidOperationException($"Downloaded file {fileKey} failed SHA256 verification.");
     }
 }
 

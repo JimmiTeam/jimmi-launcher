@@ -19,14 +19,6 @@ public partial class OnlineMenuViewModel : MenuViewModelBase
     private readonly Action<string>? _onNavigateRequested;
     private readonly NetplayContentService _contentService;
     private Content? _attestation;
-    private static readonly Uri _contentBaseUrl = new Uri("https://jimmi-netplay-content.s3.us-east-2.amazonaws.com/");
-    private const string _coreBuildId = "core-20260131.1";
-    
-    private static readonly string _publicKeyPem = @"-----BEGIN PUBLIC KEY-----
-        MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE1ctV5EzPJyse4WQ/9xX3pMkgO26P
-        GK+qsILgR05vJVta7l2KoB93AStYqC54kyYYvsZYYbs0flgHkGdUu8an2g==
-        -----END PUBLIC KEY-----
-    ";
 
     public override bool CanNavigateReplays { get; protected set; } = true;
     public override bool CanNavigateMain { get; protected set; } = true;
@@ -58,10 +50,10 @@ public partial class OnlineMenuViewModel : MenuViewModelBase
     public OnlineMenuViewModel(Action<string>? onNavigateRequested = null)
     {
         _onNavigateRequested = onNavigateRequested;
-        _contentService = new NetplayContentService(_contentBaseUrl, _coreBuildId, _publicKeyPem);
+        _contentService = App.ContentService;
         try {
-             AvailableGames = new System.Collections.ObjectModel.ObservableCollection<GameRom>(DatabaseHandler.GetGames());
-             SelectedGame = System.Linq.Enumerable.FirstOrDefault(AvailableGames);
+            AvailableGames = new System.Collections.ObjectModel.ObservableCollection<GameRom>(DatabaseHandler.GetGames());
+            SelectedGame = System.Linq.Enumerable.FirstOrDefault(AvailableGames);
         } catch {}
     }
 
@@ -161,7 +153,7 @@ public partial class OnlineMenuViewModel : MenuViewModelBase
                 content = new {
                     id = _attestation.Id,
                     compat = new {
-                        coreBuildId = _coreBuildId,
+                        coreBuildId = App.CoreBuildId,
                         romMd5 = Globals.GetRomMd5(SelectedGame!.GamePath).ToUpperInvariant(),
                     },
                     metadata = new { key = _attestation.Metadata.Key, sha256 = _attestation.Metadata.Sha256 },
@@ -240,7 +232,7 @@ public partial class OnlineMenuViewModel : MenuViewModelBase
                 content = new {
                     id = _attestation.Id,
                     compat = new {
-                        coreBuildId = _coreBuildId,
+                        coreBuildId = App.CoreBuildId,
                         romMd5 = Globals.GetRomMd5(SelectedGame!.GamePath).ToUpperInvariant(),
                     },
                     metadata = new { key = _attestation.Metadata.Key, sha256 = _attestation.Metadata.Sha256 },
@@ -310,7 +302,7 @@ public partial class OnlineMenuViewModel : MenuViewModelBase
                 content = new {
                     id = _attestation!.Id,
                     compat = new {
-                        coreBuildId = _coreBuildId,
+                        coreBuildId = App.CoreBuildId,
                         romMd5 = Globals.GetRomMd5(SelectedGame!.GamePath).ToUpperInvariant(),
                     },
                     metadata = new { key = _attestation.Metadata.Key, sha256 = _attestation.Metadata.Sha256 },

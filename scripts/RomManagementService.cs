@@ -10,12 +10,6 @@ namespace JimmiLauncher
 {
     public class RomManagementService
     {
-        private static readonly Uri _contentBaseUrl = new Uri("https://jimmi-netplay-content.s3.us-east-2.amazonaws.com/");
-        private static readonly string _publicKeyPem = @"-----BEGIN PUBLIC KEY-----
-        MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE1ctV5EzPJyse4WQ/9xX3pMkgO26P
-        GK+qsILgR05vJVta7l2KoB93AStYqC54kyYYvsZYYbs0flgHkGdUu8an2g==
-        -----END PUBLIC KEY-----";
-
         private static readonly string _userApppdataFolder = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
 
         public async Task AddRomAsync(string romPath)
@@ -74,20 +68,20 @@ namespace JimmiLauncher
              try 
              {
                 using var httpClient = new HttpClient();
-                var manifestJsonUrl = new Uri(_contentBaseUrl, "content/manifest.json");
-                var manifestSigUrl = new Uri(_contentBaseUrl, "content/manifest.sig");
+                var manifestJsonUrl = new Uri(App.ContentBaseUrl, "content/manifest.json");
+                var manifestSigUrl = new Uri(App.ContentBaseUrl, "content/manifest.sig");
 
                 var manifestJsonBytes = await httpClient.GetByteArrayAsync(manifestJsonUrl);
                 var manifestSigBase64 = await httpClient.GetStringAsync(manifestSigUrl);
 
-                ManifestVerifier.VerifyOrThrow(manifestJsonBytes, manifestSigBase64, _publicKeyPem);
+                ManifestVerifier.VerifyOrThrow(manifestJsonBytes, manifestSigBase64, App.PublicKeyPem);
                 var manifest = JsonSerializer.Deserialize<ContentManifest>(manifestJsonBytes);
                 return manifest ?? throw new Exception("Failed to deserialize manifest.");
              }
              catch (Exception ex)
              {
-                 Console.WriteLine("Failed to fetch manifest from S3: " + ex.Message);
-                 throw;
+                Console.WriteLine("Failed to fetch manifest from S3: " + ex.Message);
+                throw;
              }
         }
 
@@ -105,7 +99,7 @@ namespace JimmiLauncher
 
              using var httpClient = new HttpClient();
              // bundle.Metadata.Key is full relative path e.g. "content/metadata/..."
-             var response = await httpClient.GetAsync(new Uri(_contentBaseUrl, bundle.Metadata.Key));
+             var response = await httpClient.GetAsync(new Uri(App.ContentBaseUrl, bundle.Metadata.Key));
              response.EnsureSuccessStatusCode();
              using (var fs = new FileStream(localPath, FileMode.Create))
              {

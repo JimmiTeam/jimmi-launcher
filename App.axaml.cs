@@ -2,6 +2,7 @@ using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Data.Core;
 using Avalonia.Data.Core.Plugins;
+using System;
 using System.Linq;
 using Avalonia.Markup.Xaml;
 using JimmiLauncher.ViewModels;
@@ -15,6 +16,16 @@ public partial class App : Application
 {
     private FileSystemWatcher? _fileWatcher;
 
+    public static readonly Uri ContentBaseUrl = new Uri("https://jimmi-netplay-content.s3.us-east-2.amazonaws.com/");
+    public const string CoreBuildId = "core_2026-02-21.1";
+    public static readonly string PublicKeyPem =
+@"-----BEGIN PUBLIC KEY-----
+MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE1ctV5EzPJyse4WQ/9xX3pMkgO26P
+GK+qsILgR05vJVta7l2KoB93AStYqC54kyYYvsZYYbs0flgHkGdUu8an2g==
+-----END PUBLIC KEY-----";
+
+    public static NetplayContentService ContentService { get; } = new NetplayContentService(ContentBaseUrl, CoreBuildId, PublicKeyPem);
+
     public override void Initialize()
     {
         AvaloniaXamlLoader.Load(this);
@@ -25,6 +36,9 @@ public partial class App : Application
         // Initialize database and globals
         DatabaseHandler.InitializeDatabase();
         Globals.InitializeGlobals();
+
+        // Download all netplay content from remote manifest in the background
+        _ = InitializeNetplayContentAsync();
 
         // Extract thumbnails
         try
@@ -84,6 +98,18 @@ public partial class App : Application
         catch (System.Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"Failed to initialize file watcher: {ex.Message}");
+        }
+    }
+
+    private static async Task InitializeNetplayContentAsync()
+    {
+        try
+        {
+            await ContentService.DownloadAllManifestContentAsync();
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Failed to download manifest content at startup: {ex.Message}");
         }
     }
 

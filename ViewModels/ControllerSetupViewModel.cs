@@ -120,6 +120,44 @@ public partial class ControllerSetupViewModel : MenuViewModelBase, IDisposable
     [ObservableProperty]
     private int _selectedDetectedDeviceIndex = -1;
 
+    partial void OnSelectedDetectedDeviceIndexChanged(int value)
+    {
+        if (value >= 0 && value < DetectedDevices.Count)
+        {
+            var entry = DetectedDevices[value];
+            var colonIdx = entry.IndexOf(':');
+            if (colonIdx >= 0)
+            {
+                if (int.TryParse(entry[..colonIdx].Trim(), out int idx))
+                    DeviceIndex = idx;
+
+                DeviceName = entry[(colonIdx + 1)..].Trim();
+            }
+
+            // Load bindings from the matching AutoCfg section
+            if (File.Exists(AutoCfgPath))
+            {
+                var bindingData = ParseAutoCfgSectionByName(File.ReadAllLines(AutoCfgPath), DeviceName);
+                if (bindingData.Count > 0)
+                {
+                    foreach (var binding in Bindings)
+                    {
+                        if (AxisSplitMap.TryGetValue(binding.N64InputName, out var splitInfo))
+                        {
+                            var combined = GetString(bindingData, splitInfo.CfgKey, "");
+                            binding.BoundValue = SplitAxisValue(combined, splitInfo.IsPositive);
+                        }
+                        else
+                        {
+                            binding.BoundValue = GetString(bindingData, binding.N64InputName, "");
+                        }
+                    }
+                    StatusMessage = $"Loaded bindings for: {DeviceName}";
+                }
+            }
+        }
+    }
+
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(LeftStickCanvasX))]
     private double _leftStickX = 0.5;
@@ -271,8 +309,12 @@ public partial class ControllerSetupViewModel : MenuViewModelBase, IDisposable
             }
 
             var bindingData = File.Exists(AutoCfgPath)
-                ? ParseAutoCfgXInputSection(File.ReadAllLines(AutoCfgPath))
+                ? ParseAutoCfgSectionByName(File.ReadAllLines(AutoCfgPath), DeviceName)
                 : sectionData;
+
+            // Fall back to cfg data if no matching section found in AutoCfg
+            if (bindingData.Count == 0)
+                bindingData = sectionData;
 
             foreach (var binding in Bindings)
             {
@@ -325,6 +367,7 @@ public partial class ControllerSetupViewModel : MenuViewModelBase, IDisposable
             newValues["AnalogPeak"] = $"\"{AnalogPeak},{AnalogPeak}\"";
             newValues["mode"] = "2";
 
+            var bindingValues = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
             var axisParts = new Dictionary<string, string[]>(StringComparer.OrdinalIgnoreCase);
             foreach (var binding in Bindings)
             {
@@ -338,6 +381,7 @@ public partial class ControllerSetupViewModel : MenuViewModelBase, IDisposable
                 else
                 {
                     newValues[binding.N64InputName] = $"\"{binding.BoundValue}\"";
+                    bindingValues[binding.N64InputName] = binding.BoundValue;
                 }
             }
 
@@ -348,9 +392,12 @@ public partial class ControllerSetupViewModel : MenuViewModelBase, IDisposable
                 var combined = (neg, pos) switch
                 {
                     ("", "") => "",
-                    _ => $"{neg},{pos}"
+                    _ => $"{ExtractAxisInner(neg)},{ExtractAxisInner(pos)}"
                 };
+                if (!string.IsNullOrEmpty(combined))
+                    combined = $"axis({combined})";
                 newValues[cfgKey] = $"\"{combined}\"";
+                bindingValues[cfgKey] = combined;
             }
 
             for (int i = start + 1; i <= end && i < lines.Count; i++)
@@ -372,7 +419,7 @@ public partial class ControllerSetupViewModel : MenuViewModelBase, IDisposable
 
             File.WriteAllLines(CfgPath, lines);
 
-            SaveToAutoCfg(newValues);
+            SaveToAutoCfg(DeviceName, bindingValues);
 
             StatusMessage = $"Save successful.";
         }
@@ -383,64 +430,28 @@ public partial class ControllerSetupViewModel : MenuViewModelBase, IDisposable
         }
     }
 
-    private static void SaveToAutoCfg(Dictionary<string, string> quotedValues)
+    private static void SaveToAutoCfg(string deviceName, Dictionary<string, string> bindingValues)
     {
         if (!File.Exists(AutoCfgPath)) return;
+        if (string.IsNullOrWhiteSpace(deviceName)) return;
 
         var lines = File.ReadAllLines(AutoCfgPath).ToList();
+        var (dataStart, dataEnd) = FindAutoCfgSectionByName(lines, deviceName);
+        if (dataStart < 0) return;
 
-        int sectionStart = -1;
-        for (int i = 0; i < lines.Count; i++)
-        {
-            var trimmed = lines[i].Trim();
-            if (trimmed.StartsWith("[XInput:", StringComparison.OrdinalIgnoreCase))
-            {
-                sectionStart = i;
-                break;
-            }
-        }
-        if (sectionStart < 0) return;
-
-        int dataStart = sectionStart;
-        for (int i = sectionStart; i < lines.Count; i++)
-        {
-            var trimmed = lines[i].Trim();
-            if (trimmed.StartsWith('[') && trimmed.EndsWith(']'))
-            {
-                dataStart = i + 1;
-                continue;
-            }
-            break;
-        }
-
-        int sectionEnd = lines.Count - 1;
-        for (int i = dataStart; i < lines.Count; i++)
-        {
-            var trimmed = lines[i].Trim();
-            if (trimmed.StartsWith('[') && trimmed.EndsWith(']'))
-            {
-                sectionEnd = i - 1;
-                break;
-            }
-        }
-
-        var unquoted = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-        foreach (var (key, val) in quotedValues)
-        {
-            unquoted[key] = val.Trim('"');
-        }
-
-        for (int i = dataStart; i <= sectionEnd && i < lines.Count; i++)
+        for (int i = dataStart; i <= dataEnd && i < lines.Count; i++)
         {
             var line = lines[i];
             if (string.IsNullOrWhiteSpace(line) || line.TrimStart().StartsWith(';'))
                 continue;
+            if (line.TrimStart().StartsWith('['))
+                break;
 
             var eqIdx = line.IndexOf('=');
             if (eqIdx < 0) continue;
 
             var key = line.Substring(0, eqIdx).Trim();
-            if (unquoted.TryGetValue(key, out var newVal))
+            if (bindingValues.TryGetValue(key, out var newVal))
             {
                 lines[i] = $"{key} = {newVal}";
             }
@@ -652,37 +663,22 @@ public partial class ControllerSetupViewModel : MenuViewModelBase, IDisposable
         }
     }
 
-    private static Dictionary<string, string> ParseAutoCfgXInputSection(string[] lines)
+    private static Dictionary<string, string> ParseAutoCfgSectionByName(string[] lines, string deviceName)
     {
         var result = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        if (string.IsNullOrWhiteSpace(deviceName)) return result;
 
-        int dataStart = -1;
-        for (int i = 0; i < lines.Length; i++)
-        {
-            var trimmed = lines[i].Trim();
-            if (trimmed.StartsWith("[XInput:", StringComparison.OrdinalIgnoreCase))
-            {
-                for (int j = i; j < lines.Length; j++)
-                {
-                    var t = lines[j].Trim();
-                    if (t.StartsWith('[') && t.EndsWith(']'))
-                        continue;
-                    dataStart = j;
-                    break;
-                }
-                break;
-            }
-        }
-
+        deviceName = deviceName.Trim('"');
+        var (dataStart, dataEnd) = FindAutoCfgSectionByName(lines, deviceName);
         if (dataStart < 0) return result;
 
-        for (int i = dataStart; i < lines.Length; i++)
+        for (int i = dataStart; i <= dataEnd; i++)
         {
             var trimmed = lines[i].Trim();
-            if (trimmed.StartsWith('[') && trimmed.EndsWith(']'))
-                break;
             if (string.IsNullOrWhiteSpace(trimmed) || trimmed.StartsWith(';'))
                 continue;
+            if (trimmed.StartsWith('[') && trimmed.EndsWith(']'))
+                break;
 
             var eqIdx = trimmed.IndexOf('=');
             if (eqIdx < 0) continue;
@@ -693,6 +689,83 @@ public partial class ControllerSetupViewModel : MenuViewModelBase, IDisposable
         }
 
         return result;
+    }
+
+    /// <summary>
+    /// Finds the data line range (start, end) for the section in InputAutoCfg.ini
+    /// whose header matches the given device name. Handles consecutive headers
+    /// that share the same data block.
+    /// </summary>
+    private static (int DataStart, int DataEnd) FindAutoCfgSectionByName(IReadOnlyList<string> lines, string deviceName)
+    {
+        if (string.IsNullOrWhiteSpace(deviceName)) return (-1, -1);
+
+        deviceName = deviceName.Trim('"');
+        int dataStart = -1;
+        bool currentGroupMatches = false;
+        bool readingData = false;
+
+        for (int i = 0; i < lines.Count; i++)
+        {
+            var trimmed = lines[i].Trim();
+            if (string.IsNullOrWhiteSpace(trimmed) || trimmed.StartsWith(';'))
+                continue;
+
+            if (trimmed.StartsWith('[') && trimmed.EndsWith(']'))
+            {
+                if (readingData)
+                {
+                    if (currentGroupMatches)
+                        return (dataStart, i - 1);
+
+                    currentGroupMatches = false;
+                    readingData = false;
+                }
+
+                var sectionName = trimmed[1..^1].Trim();
+                if (MatchesDeviceName(sectionName, deviceName))
+                    currentGroupMatches = true;
+            }
+            else
+            {
+                if (!readingData)
+                    readingData = true;
+
+                if (currentGroupMatches && dataStart < 0)
+                    dataStart = i;
+            }
+        }
+
+        if (currentGroupMatches && dataStart >= 0)
+            return (dataStart, lines.Count - 1);
+
+        return (-1, -1);
+    }
+
+    /// <summary>
+    /// Checks whether a section header name matches the target device name.
+    /// Uses "starts with" so that e.g. device "raphnet technologies N64 to USB v3.6"
+    /// matches section "[raphnet technologies N64 to USB]".
+    /// Also strips common platform prefixes before comparing.
+    /// </summary>
+    private static bool MatchesDeviceName(string sectionName, string deviceName)
+    {
+        if (deviceName.StartsWith(sectionName, StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        // Try stripping common platform prefixes from section name
+        string[] prefixes = { "Win32: ", "Linux: ", "XInput: " };
+        foreach (var prefix in prefixes)
+        {
+            if (sectionName.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
+            {
+                var stripped = sectionName[prefix.Length..];
+                if (deviceName.StartsWith(stripped, StringComparison.OrdinalIgnoreCase))
+                    return true;
+            }
+        }
+
+        return false;
     }
 
     private static Dictionary<string, string> ParseSection(string[] lines, string sectionName)
@@ -766,18 +839,36 @@ public partial class ControllerSetupViewModel : MenuViewModelBase, IDisposable
         if (string.IsNullOrWhiteSpace(combined))
             return "";
 
-        var commaIdx = combined.IndexOf(',');
+        // Unwrap axis() wrapper first, e.g. "axis(0-,0+)" → "0-,0+"
+        var inner = combined.Trim();
+        if (inner.StartsWith("axis(", StringComparison.OrdinalIgnoreCase) && inner.EndsWith(")"))
+            inner = inner[5..^1];
+
+        var commaIdx = inner.IndexOf(',');
         if (commaIdx < 0)
         {
-            return isPositive ? "" : combined;
+            // Single value — assign to negative side only
+            return isPositive ? "" : $"axis({inner})";
         }
 
-        return isPositive
-            ? combined[(commaIdx + 1)..].Trim()
-            : combined[..commaIdx].Trim();
+        var part = isPositive
+            ? inner[(commaIdx + 1)..].Trim()
+            : inner[..commaIdx].Trim();
+
+        return string.IsNullOrEmpty(part) ? "" : $"axis({part})";
     }
 
-    
+    /// <summary>
+    /// Extracts the inner value from an axis string, e.g. "axis(0-)" → "0-".
+    /// Returns the original string if it doesn't match the axis() pattern.
+    /// </summary>
+    private static string ExtractAxisInner(string value)
+    {
+        value = value.Trim();
+        if (value.StartsWith("axis(", StringComparison.OrdinalIgnoreCase) && value.EndsWith(")"))
+            return value[5..^1];
+        return value;
+    }
 
     private static string GetString(Dictionary<string, string> data, string key, string defaultValue)
         => data.TryGetValue(key, out var v) ? v : defaultValue;

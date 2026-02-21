@@ -189,14 +189,13 @@
                         <Button Classes="SaveButton"
                                 Content="Save"
                                 Command="{Binding SaveBindingsCommand}"/>
-                        <Button Classes="ActionButton"
+                        <!-- <Button Classes="ActionButton"
                                 Content="Reset Defaults"
-                                Command="{Binding ResetToDefaultsCommand}"/>
+                                Command="{Binding ResetToDefaultsCommand}"/> -->
+                        <Button Classes="ActionButton"
+                            Content="Reload from Config File"
+                            Command="{Binding ReloadBindingsCommand}"/>
                     </StackPanel>
-                    <Button Classes="ActionButton"
-                        Content="Reload from Config File"
-                        Command="{Binding ReloadBindingsCommand}"
-                        HorizontalAlignment="Center"/>
                 </StackPanel>
             </StackPanel>
 

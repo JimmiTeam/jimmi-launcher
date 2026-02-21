@@ -166,11 +166,6 @@ public sealed unsafe class GamepadService : IDisposable
                 }
             }
 
-            // if (_openGamepads.Count == 0 && _openJoysticks.Count == 0)
-            // {
-            //     Log("WARNING: No devices could be opened. Inputs will not work.");
-            // }
-
             int frameCount = 0;
             while (_running)
             {
@@ -272,6 +267,8 @@ public sealed unsafe class GamepadService : IDisposable
             }
             case SDL_EventType.SDL_EVENT_JOYSTICK_BUTTON_DOWN:
             {
+                if (_openGamepads.ContainsKey(e.jbutton.which)) break;
+
                 int button = e.jbutton.button;
                 Console.WriteLine($"[GamepadService] BUTTON DOWN: button={button}, IsListening={IsListening}");
                 if (IsListening)
@@ -287,6 +284,9 @@ public sealed unsafe class GamepadService : IDisposable
 
             case SDL_EventType.SDL_EVENT_JOYSTICK_AXIS_MOTION:
             {
+                // Skip for gamepad devices — handled by SDL_EVENT_GAMEPAD_AXIS_MOTION
+                if (_openGamepads.ContainsKey(e.jaxis.which)) break;
+
                 short value = e.jaxis.value;
                 if (Math.Abs((int)value) > ListenAxisThreshold)
                 {
@@ -301,6 +301,50 @@ public sealed unsafe class GamepadService : IDisposable
                             sdlStr,
                             $"Axis {axis}{sign}"));
                     }
+                }
+                break;
+            }
+
+            // Gamepad events (SDL3 standardized mapping to SDL2-compatible indices)
+            case SDL_EventType.SDL_EVENT_GAMEPAD_AXIS_MOTION:
+            {
+                short value = e.gaxis.value;
+                if (Math.Abs((int)value) > ListenAxisThreshold)
+                {
+                    // SDL_GamepadAxis enum values match mupen64plus's expected axis order
+                    int axis = (int)e.gaxis.Axis;
+                    string sign = value > 0 ? "+" : "-";
+                    Console.WriteLine($"[GamepadService] GAMEPAD AXIS: axis={axis}{sign} val={value}, IsListening={IsListening}");
+                    if (IsListening)
+                    {
+                        var sdlStr = $"axis({axis}{sign})";
+                        InputDetected?.Invoke(new DetectedInput(
+                            (int)(uint)e.gaxis.which,
+                            sdlStr,
+                            $"Axis {axis}{sign}"));
+                    }
+                }
+                break;
+            }
+
+            case SDL_EventType.SDL_EVENT_GAMEPAD_BUTTON_DOWN:
+            {
+                var gpButton = e.gbutton.Button;
+                if (gpButton >= SDL_GamepadButton.SDL_GAMEPAD_BUTTON_DPAD_UP
+                    && gpButton <= SDL_GamepadButton.SDL_GAMEPAD_BUTTON_DPAD_RIGHT)
+                    break;
+
+                int button = MapGamepadButtonToSDL2(gpButton);
+                if (button < 0) break;
+
+                Console.WriteLine($"[GamepadService] GAMEPAD BUTTON: {gpButton}→button({button}), IsListening={IsListening}");
+                if (IsListening)
+                {
+                    var sdlStr = $"button({button})";
+                    InputDetected?.Invoke(new DetectedInput(
+                        (int)(uint)e.gbutton.which,
+                        sdlStr,
+                        $"Button {button}"));
                 }
                 break;
             }
@@ -336,6 +380,25 @@ public sealed unsafe class GamepadService : IDisposable
                 break;
             }
         }
+    }
+
+    private static int MapGamepadButtonToSDL2(SDL_GamepadButton gpButton)
+    {
+        return gpButton switch
+        {
+            SDL_GamepadButton.SDL_GAMEPAD_BUTTON_SOUTH => 0,           // A
+            SDL_GamepadButton.SDL_GAMEPAD_BUTTON_EAST => 1,            // B
+            SDL_GamepadButton.SDL_GAMEPAD_BUTTON_WEST => 2,            // X
+            SDL_GamepadButton.SDL_GAMEPAD_BUTTON_NORTH => 3,           // Y
+            SDL_GamepadButton.SDL_GAMEPAD_BUTTON_LEFT_SHOULDER => 4,   // LB
+            SDL_GamepadButton.SDL_GAMEPAD_BUTTON_RIGHT_SHOULDER => 5,  // RB
+            SDL_GamepadButton.SDL_GAMEPAD_BUTTON_BACK => 6,            // Back/Select
+            SDL_GamepadButton.SDL_GAMEPAD_BUTTON_START => 7,           // Start
+            SDL_GamepadButton.SDL_GAMEPAD_BUTTON_LEFT_STICK => 8,      // LS
+            SDL_GamepadButton.SDL_GAMEPAD_BUTTON_RIGHT_STICK => 9,     // RS
+            SDL_GamepadButton.SDL_GAMEPAD_BUTTON_GUIDE => 10,          // Guide
+            _ => -1,
+        };
     }
 
     public List<(int Index, string Name)> GetConnectedDevicesSafe()
